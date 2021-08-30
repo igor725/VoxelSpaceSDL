@@ -18,7 +18,7 @@ static SDL_Surface *ReencodeSurface(SDL_Surface *old) {
 		new = SDL_ConvertSurfaceFormat(old, SDL_PIXELFORMAT_ARGB8888, 0);
 		SDL_FreeSurface(old);
 	}
-	
+
 	return new;
 }
 
@@ -42,7 +42,7 @@ static int LoadMap(struct sMap *map, const char *diffuse, const char *height) {
 		SDL_LogError(0, "Diffuse map and height map have different dimensions.");
 		return 0;
 	}
-	
+
 	if((sHeight->w & (sHeight->w - 1)) != 0) {
 		SDL_LogError(0, "Failed to process image: Image width must be power of two.");
 		return 0;
@@ -478,7 +478,7 @@ int main(int argc, char *argv[]) {
 		SDL_LogError(0, "SDL_Init failed: %s.", SDL_GetError());
 		return 1;
 	}
-	
+
 	if((ctx.wnd = CreateSDLWindow(WINDOW_FLAGS)) == NULL) {
 		SDL_LogError(0, "Failed to create SDL window: %s.", SDL_GetError());
 		EndSDL(&ctx);
@@ -520,7 +520,7 @@ int main(int argc, char *argv[]) {
 	while(ctx.running) {
 		// Обрабатываем накопившиеся эвенты SDL
 		ProcessSDLEvents(&ctx);
-		
+
 		// Изменяем положение камеры в соответствии с нажатыми кнопками
 		UpdateInput(&ctx);
 
@@ -545,7 +545,7 @@ int main(int argc, char *argv[]) {
 		currentTime = SDL_GetTicks();
 		ctx.deltaTime = currentTime - lastTime;
 	}
-	
+
 	// Очищаемся
 	FreeMap(&ctx.map);
 	EndSDL(&ctx);

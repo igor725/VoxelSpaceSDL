@@ -2,6 +2,9 @@
 #include "SDL_render.h"
 #include "SDL_gamecontroller.h"
 
+struct sMap;
+struct sCamera;
+
 typedef struct sPoint {
 	float x, y;
 } Point;
