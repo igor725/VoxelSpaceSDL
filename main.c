@@ -117,6 +117,18 @@ static void DrawVerticalLine(int *pixels, int x, int top, int bottom, int color)
 	}
 }
 
+static void AdjustRenderDistanceBy(struct sContext *ctx, float value) {
+	ctx->redrawMap = 1;
+	ctx->camera.distance += value;
+	if(ctx->camera.distance < 300.0f || ctx->camera.distance > 3000.0f)
+		ctx->camera.distance = 300.0f;
+	SDL_Log("Render distance changed to %.2f.", ctx->camera.distance);
+}
+
+static void ResetRenderDistance(struct sContext *ctx) {
+	AdjustRenderDistanceBy(ctx, 800.0f - ctx->camera.distance);
+}
+
 static void DrawMap(struct sContext *ctx, int *pixels) {
 	for(int i = 0; i < windowWidth * windowHeight; i++)
 		pixels[i] = 0x9090E0FF;
@@ -161,6 +173,79 @@ static void DrawMap(struct sContext *ctx, int *pixels) {
 	Выполняем определённые действия
 	при нажатии пользователем кнопок.
 */
+int controllerButtonsState[SDL_CONTROLLER_BUTTON_MAX] = {0};
+
+static void ProcessControllerButtonDown(struct sContext *ctx, SDL_GameControllerButton button) {
+	switch(button) {
+		case SDL_CONTROLLER_BUTTON_B:
+			ctx->running = 0;
+			break;
+		case SDL_CONTROLLER_BUTTON_Y:
+			ResetRenderDistance(ctx);
+			break;
+		case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+		case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+			AdjustRenderDistanceBy(ctx, button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER ? -150.0f : 150.0f);
+			break;
+		default: break;
+	}
+}
+
+static void ProcessControllerButtonUp(struct sContext *ctx, SDL_GameControllerButton b) {
+
+}
+
+static int ProcessControllerInput(struct sContext *ctx, float deltaMult) {
+	if(!ctx->controller) return 0;
+
+	Point leftStick = {
+		.x = (float)SDL_GameControllerGetAxis(ctx->controller, SDL_CONTROLLER_AXIS_LEFTX) / 32767.0f,
+		.y = (float)SDL_GameControllerGetAxis(ctx->controller, SDL_CONTROLLER_AXIS_LEFTY) / 32767.0f
+	};
+
+	Point rightStick = {
+		.x = (float)SDL_GameControllerGetAxis(ctx->controller, SDL_CONTROLLER_AXIS_RIGHTX) / 32767.0f,
+		.y = (float)SDL_GameControllerGetAxis(ctx->controller, SDL_CONTROLLER_AXIS_RIGHTY) / 32767.0f
+	};
+
+	int handled = 0;
+
+	if(SDL_fabsf(leftStick.x) > 0.15f || SDL_fabsf(leftStick.y) > 0.15f) {
+		ctx->camera.position.x += (4.0f * leftStick.x * SDL_cosf(ctx->camera.angle) * deltaMult) +
+		(leftStick.y * 4.0f * SDL_sinf(ctx->camera.angle) * deltaMult);
+		ctx->camera.position.y += (4.0f * leftStick.x * SDL_sinf(-ctx->camera.angle) * deltaMult) +
+		(leftStick.y * 4.0f * SDL_cosf(ctx->camera.angle) * deltaMult);
+		ctx->camera.height -= (ctx->camera.horizon - ctx->camera.ihorizon) * leftStick.y * 0.02f * deltaMult;
+		ctx->redrawMap = 1;
+		handled = 1;
+	}
+
+	if(SDL_fabsf(rightStick.x) > 0.15f || SDL_fabsf(rightStick.y) > 0.15f) {
+		ctx->camera.angle -= rightStick.x * 0.1f * deltaMult;
+		ctx->camera.horizon -= rightStick.y * 25.0f * deltaMult;
+		ctx->redrawMap = 1;
+		handled = 1;
+	}
+
+	for(SDL_GameControllerButton i = 1; i < SDL_CONTROLLER_BUTTON_MAX; i++) {
+		if(SDL_GameControllerGetButton(ctx->controller, i)) {
+			if(!controllerButtonsState[i]) {
+				ProcessControllerButtonDown(ctx, i);
+				controllerButtonsState[i] = 1;
+				handled = 1;
+			}
+		} else {
+			if(controllerButtonsState[i]) {
+				ProcessControllerButtonUp(ctx, i);
+				controllerButtonsState[i] = 0;
+				handled = 1;
+			}
+		}
+	}
+
+	return handled;
+}
+
 #define MAX_KEYBINDS 4
 static SDL_Scancode input[MAX_KEYBINDS] = {0, 0, 0, 0};
 
@@ -184,15 +269,10 @@ static int ProcessKeyDown(struct sContext *ctx, SDL_KeyboardEvent *ev) {
 			input[3] = code;
 			break;
 		case SDL_SCANCODE_SPACE:
-			if(ev->keysym.mod & KMOD_LCTRL)
-				ctx->camera.distance = 800.0f;
-			else {
-				ctx->camera.distance += (ev->keysym.mod & KMOD_SHIFT ? -150.0f : 150.0f);
-				if(ctx->camera.distance < 300.0f || ctx->camera.distance > 3000.0f)
-					ctx->camera.distance = 300.0f;
-			}
-			ctx->redrawMap = 1;
-			SDL_Log("Render distance changed to %.2f.", ctx->camera.distance);
+			if(ev->keysym.mod & KMOD_CTRL)
+				ResetRenderDistance(ctx);
+			else
+				AdjustRenderDistanceBy(ctx, ev->keysym.mod & KMOD_SHIFT ? -150.0f : 150.0f);
 			break;
 		case SDL_SCANCODE_ESCAPE: // Закрываем приложение при нажатии ESC
 			return 0;
@@ -225,17 +305,16 @@ static void ProcessKeyUp(SDL_KeyboardEvent *ev) {
 	}
 }
 
-static void UpdateInput(struct sContext *ctx) {
-	float deltaMult = (float)ctx->deltaTime * 0.03f;
+static void ProcessKeyboardInput(struct sContext *ctx, float deltaMult) {
 	if(input[3])
-		ctx->camera.horizon += (input[3] == SDL_SCANCODE_R ? 4.0f : -4.0f) * deltaMult;
+		ctx->camera.horizon += (input[3] == SDL_SCANCODE_R ? 25.0f : -25.0f) * deltaMult;
 	if(input[2])
 		ctx->camera.height += (input[2] == SDL_SCANCODE_E ? 4.0f : -4.0f) * deltaMult;
 	if(input[1]) {
 		float direction = (input[1] == SDL_SCANCODE_A ? 1.0f : -1.0f);
 		if(ctx->mouseGrabbed){
-			ctx->camera.position.x -= 10.0f * direction * SDL_cosf(ctx->camera.angle) * deltaMult;
-			ctx->camera.position.y -= 10.0f * direction * SDL_sinf(-ctx->camera.angle) * deltaMult;
+			ctx->camera.position.x -= 4.0f * direction * SDL_cosf(ctx->camera.angle) * deltaMult;
+			ctx->camera.position.y -= 4.0f * direction * SDL_sinf(-ctx->camera.angle) * deltaMult;
 		} else
 			ctx->camera.angle += 0.1f * direction * deltaMult;
 	}
@@ -256,10 +335,34 @@ static void UpdateInput(struct sContext *ctx) {
 	}
 }
 
+static void UpdateInput(struct sContext *ctx) {
+	float deltaMult = (float)ctx->deltaTime * 0.03f;
+
+	if(!ProcessControllerInput(ctx, deltaMult))
+		ProcessKeyboardInput(ctx, deltaMult);
+}
+
 static void ToggleMouseGrab(struct sContext *ctx) {
 	ctx->mouseGrabbed = !ctx->mouseGrabbed;
 	SDL_SetRelativeMouseMode(ctx->mouseGrabbed);
 	SDL_SetWindowGrab(ctx->wnd, ctx->mouseGrabbed);
+}
+
+static void CaptureController(struct sContext *ctx, int id) {
+	if(ctx->controller) return;
+	if (SDL_IsGameController(id)) {
+		ctx->controller = SDL_GameControllerOpen(id);
+		if(ctx->controller)
+			SDL_Log("Controller %s added.", SDL_GameControllerName(ctx->controller));
+		else
+			SDL_Log("Can't open controller #%d: %s", id, SDL_GetError());
+	}
+}
+
+static void ReleaseController(struct sContext *ctx, int id) {
+	SDL_Log("Controller %d disconnected", id);
+	if(ctx->controller)
+		SDL_GameControllerClose(ctx->controller);
 }
 
 static void ProcessSDLEvents(struct sContext *ctx) {
@@ -290,6 +393,12 @@ static void ProcessSDLEvents(struct sContext *ctx) {
 					ctx->camera.horizon -= (float)ev.motion.yrel;
 					ctx->redrawMap = 1;
 				}
+				break;
+			case SDL_CONTROLLERDEVICEADDED:
+				CaptureController(ctx, ev.cdevice.which);
+				break;
+			case SDL_CONTROLLERDEVICEREMOVED:
+				ReleaseController(ctx, ev.cdevice.which);
 				break;
 			case SDL_DROPFILE:
 				tmpsymptr = strrchr(ev.drop.file, '\\');
@@ -365,7 +474,7 @@ int main(int argc, char *argv[]) {
 	};
 
 	// Инициализируем SDL
-	if(SDL_Init(SDL_INIT_VIDEO) != 0) {
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
 		SDL_LogError(0, "SDL_Init failed: %s.", SDL_GetError());
 		return 1;
 	}

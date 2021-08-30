@@ -1,5 +1,6 @@
 #include "SDL_video.h"
 #include "SDL_render.h"
+#include "SDL_gamecontroller.h"
 
 typedef struct sPoint {
 	float x, y;
@@ -14,6 +15,7 @@ struct sContext {
 	SDL_Window *wnd;
 	SDL_Renderer *render;
 	SDL_Texture *screen;
+	SDL_GameController *controller;
 	struct sCamera {
 		Point position;
 		float height, angle;
