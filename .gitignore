@@ -1,0 +1,5 @@
+out/*
+!out/maps
+SDL2*
+*.tar.gz
+.vscode/settings.json

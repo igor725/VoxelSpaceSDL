@@ -1,0 +1,29 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Build VoxelSpace",
+			"command": "build.bat",
+			"args": [],
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"presentation": {
+				"echo": false,
+				"reveal": "silent",
+				"panel": "shared",
+				"showReuseMessage": false,
+				"clear": true
+			},
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "compiler: cl.exe"
+		}
+	]
+}
