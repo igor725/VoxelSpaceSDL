@@ -249,7 +249,7 @@ static int ProcessControllerInput(struct sContext *ctx, float deltaMult) {
 #define MAX_KEYBINDS 4
 static SDL_Scancode input[MAX_KEYBINDS] = {0, 0, 0, 0};
 
-static int ProcessKeyDown(struct sContext *ctx, SDL_KeyboardEvent *ev) {
+static void ProcessKeyDown(struct sContext *ctx, SDL_KeyboardEvent *ev) {
 	SDL_Scancode code = ev->keysym.scancode;
 	switch(code) {
 		case SDL_SCANCODE_W:
@@ -275,11 +275,10 @@ static int ProcessKeyDown(struct sContext *ctx, SDL_KeyboardEvent *ev) {
 				AdjustRenderDistanceBy(ctx, ev->keysym.mod & KMOD_SHIFT ? -150.0f : 150.0f);
 			break;
 		case SDL_SCANCODE_ESCAPE: // Закрываем приложение при нажатии ESC
-			return 0;
+			ctx->running = 0;
+			break;
 		default: break;
 	}
-
-	return 1;
 }
 
 static void ProcessKeyUp(SDL_KeyboardEvent *ev) {
@@ -360,9 +359,11 @@ static void CaptureController(struct sContext *ctx, int id) {
 }
 
 static void ReleaseController(struct sContext *ctx, int id) {
-	SDL_Log("Controller %d disconnected", id);
-	if(ctx->controller)
+	if(ctx->controller) {
+		SDL_Log("Controller %d disconnected", id);
 		SDL_GameControllerClose(ctx->controller);
+		ctx->controller = NULL;
+	}
 }
 
 static void ProcessSDLEvents(struct sContext *ctx) {
@@ -374,7 +375,7 @@ static void ProcessSDLEvents(struct sContext *ctx) {
 				ctx->running = 0;
 				break;
 			case SDL_KEYDOWN:
-				ctx->running = ProcessKeyDown(ctx, &ev.key);
+				ProcessKeyDown(ctx, &ev.key);
 				break;
 			case SDL_KEYUP:
 				ProcessKeyUp(&ev.key);
@@ -469,7 +470,7 @@ int main(int argc, char *argv[]) {
 			.height = 178.0f,
 			.horizon = CAMERA_HORIZON,
 			.ihorizon = CAMERA_HORIZON,
-			.distance = 600.0f
+			.distance = 800.0f
 		}
 	};
 
