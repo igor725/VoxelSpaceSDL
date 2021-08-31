@@ -2,12 +2,24 @@
 #include "SDL_render.h"
 #include "SDL_gamecontroller.h"
 
-struct sMap;
-struct sCamera;
-
 typedef struct sPoint {
 	float x, y;
 } Point;
+
+struct sMap {
+	int ready, shift;
+	int width, height;
+	int widthp, heightp;
+	int *hiddeny, *color;
+	unsigned char *altitude;
+};
+
+struct sCamera {
+	Point position;
+	float height, angle;
+	float distance, horizon;
+	float ihorizon;
+};
 
 struct sContext {
 	float zstep;
@@ -19,19 +31,8 @@ struct sContext {
 	SDL_Renderer *render;
 	SDL_Texture *screen;
 	SDL_GameController *controller;
-	struct sCamera {
-		Point position;
-		float height, angle;
-		float distance, horizon;
-		float ihorizon;
-	} camera;
-	struct sMap {
-		int ready, shift;
-		int width, height;
-		int widthp, heightp;
-		int *hiddeny, *color;
-		unsigned char *altitude;
-	} map;
+	struct sCamera camera;
+	struct sMap map;
 };
 
 #define WINDOW_WIDTH 800

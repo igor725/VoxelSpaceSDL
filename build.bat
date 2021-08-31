@@ -18,4 +18,12 @@ IF "!USE_SDL_IMAGE!"=="1" (
 IF NOT EXIST out MD out
 
 cl %VOXEL_CFLAGS% %VOXEL_INCLUDES% main.c /Foout\ /Feout\%VOXEL_OUT_EXE% /link %VOXEL_LIBPATHS% %VOXEL_LIBS%
+IF %ERRORLEVEL% NEQ 0 goto error else goto allok
+
+:allok
 endlocal
+exit 0
+
+:error
+endlocal
+exit 1
