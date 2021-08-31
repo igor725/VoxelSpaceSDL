@@ -21,6 +21,19 @@ static SDL_Surface *ReencodeSurface(SDL_Surface *old) {
 	return new;
 }
 
+static SDL_Surface *ScaleSurface(SDL_Surface *old, int side) {
+	SDL_Surface *new;
+	if((new = SDL_CreateRGBSurfaceWithFormat(0, side, side, 32, SDL_PIXELFORMAT_ARGB8888)) == NULL)
+		return NULL;
+
+	SDL_Rect rct = {.w = side, .h = side};
+	if(SDL_UpperBlitScaled(old, NULL, new, &rct) != 0)
+		return NULL;
+	SDL_FreeSurface(old);
+	
+	return new;
+}
+
 static int LoadMap(struct sContext *ctx, const char *diffuse, const char *height) {
 	SDL_Surface *sDiffuse = NULL, *sHeight = NULL;
 
@@ -37,14 +50,24 @@ static int LoadMap(struct sContext *ctx, const char *diffuse, const char *height
 		return 0;
 	}
 
-	if(sDiffuse->w != sHeight->w || sDiffuse->h != sHeight->h) {
-		SDL_LogError(0, "Diffuse map and height map have different dimensions.");
+	if((sDiffuse->w != sDiffuse->h) || (sHeight->w != sHeight->h)) {
+		SDL_LogError(0, "Failed to process image: Image must be a square.");
 		return 0;
 	}
 
 	if((sHeight->w & (sHeight->w - 1)) != 0) {
 		SDL_LogError(0, "Failed to process image: Image width must be power of two.");
 		return 0;
+	}
+
+	if(sHeight->w < sDiffuse->w) {
+		if((sHeight = ScaleSurface(sHeight, sDiffuse->w)) == NULL) {
+			SDL_LogError(0, "Image scaling failed: %s", SDL_GetError());
+			return 0;
+		}
+	} else if(sDiffuse->w < sHeight->w) {
+		SDL_LogError(0, "Height map bigger than diffuse image.");
+		return 0;	
 	}
 
 	struct sMap *map = &ctx->map;
