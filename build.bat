@@ -1,7 +1,7 @@
 @echo off
 setlocal enableextensions enabledelayedexpansion
 set USE_SDL_IMAGE=0
-set VOXEL_CFLAGS=/MTd /Z7
+set VOXEL_CFLAGS=/MTd /Z7 /FC
 set VOXEL_OUT_EXE=vs.exe
 set VOXEL_INCLUDES=/ISDL2\include\
 set VOXEL_LIBS=%Platform%\SDL2.lib

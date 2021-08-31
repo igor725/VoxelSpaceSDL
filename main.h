@@ -25,6 +25,7 @@ struct sContext {
 	float zstep;
 	int running, redrawMap;
 	int deltaTime, mouseGrabbed;
+	int width, height;
 	char droppedFileType;
 	char *droppedFile;
 	SDL_Window *wnd;

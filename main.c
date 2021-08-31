@@ -9,9 +9,8 @@
 #include <SDL_image.h>
 #endif
 
-int windowWidth = 0, windowHeight = 0;
-
 static SDL_Surface *ReencodeSurface(SDL_Surface *old) {
+	if(old == NULL) return NULL;
 	SDL_Surface *new = old;
 
 	if(old->format->format != SDL_PIXELFORMAT_ARGB8888) {
@@ -22,15 +21,15 @@ static SDL_Surface *ReencodeSurface(SDL_Surface *old) {
 	return new;
 }
 
-static int LoadMap(struct sMap *map, const char *diffuse, const char *height) {
+static int LoadMap(struct sContext *ctx, const char *diffuse, const char *height) {
 	SDL_Surface *sDiffuse = NULL, *sHeight = NULL;
 
 #ifndef USE_SDL_IMAGE
-	sDiffuse = SDL_LoadBMP(diffuse);
-	sHeight = SDL_LoadBMP(height);
+	sDiffuse = ReencodeSurface(SDL_LoadBMP(diffuse));
+	sHeight = ReencodeSurface(SDL_LoadBMP(height));
 #else
-	sDiffuse = IMG_Load(diffuse);
-	sHeight = IMG_Load(height);
+	sDiffuse = ReencodeSurface(IMG_Load(diffuse));
+	sHeight = ReencodeSurface(IMG_Load(height));
 #endif
 
 	if(sDiffuse == NULL || sHeight == NULL) {
@@ -48,15 +47,13 @@ static int LoadMap(struct sMap *map, const char *diffuse, const char *height) {
 		return 0;
 	}
 
-	sDiffuse = ReencodeSurface(sDiffuse);
-	sHeight = ReencodeSurface(sHeight);
-
+	struct sMap *map = &ctx->map;
 	map->shift = (int)log2f(sHeight->w);
 	map->width = sHeight->w;
 	map->height = sHeight->h;
 	map->widthp = map->width - 1,
 	map->heightp = map->height - 1;
-	map->hiddeny = SDL_calloc(4, windowWidth);
+	map->hiddeny = SDL_calloc(4, ctx->width);
 	map->color = SDL_calloc(4, sHeight->w * sHeight->h);
 	map->altitude = SDL_calloc(1, sHeight->w * sHeight->h);
 
@@ -105,15 +102,15 @@ static void NormalizeCameraPosition(struct sContext *ctx) {
 	if(ctx->camera.height < minHeight) ctx->camera.height = minHeight;
 }
 
-static void DrawVerticalLine(int *pixels, int x, int top, int bottom, int color) {
+static void DrawVerticalLine(int *pixels, int pitch, int x, int top, int bottom, int color) {
 	// Линия за пределами окна? Низя такое.
 	if(top < 0) top = 0;
 	if(top > bottom) return;
 
-	int offset = ((top * windowWidth) + x);
+	int offset = ((top * pitch) + x);
 	for(int i = top; i < bottom; i++) {
 		pixels[offset] = color;
-		offset += windowWidth;
+		offset += pitch;
 	}
 }
 
@@ -129,8 +126,8 @@ static void ResetRenderDistance(struct sContext *ctx) {
 	AdjustRenderDistanceBy(ctx, 800.0f - ctx->camera.distance);
 }
 
-static void DrawMap(struct sContext *ctx, int *pixels) {
-	for(int i = 0; i < windowWidth * windowHeight; i++)
+static void DrawMap(struct sContext *ctx, int *pixels, int pitch) {
+	for(int i = 0; i < ctx->width * ctx->height; i++)
 		pixels[i] = 0x9090E0FF;
 
 	if(!ctx->map.ready) return;
@@ -138,25 +135,25 @@ static void DrawMap(struct sContext *ctx, int *pixels) {
 	float sinang = SDL_sinf(ctx->camera.angle),
 	cosang = SDL_cosf(ctx->camera.angle);
 
-	for(int i = 0; i < windowWidth; i++)
-		ctx->map.hiddeny[i] = windowHeight;
+	for(int i = 0; i < ctx->width; i++)
+		ctx->map.hiddeny[i] = ctx->height;
 
 	float deltaz = 1.0f;
 	for(float z = 1.0f; z < ctx->camera.distance; z += deltaz) {
 		Point pLeft = {-cosang * z - sinang * z, sinang * z - cosang * z};
 		Point pRight = {cosang * z - sinang * z, -sinang * z - cosang * z};
 		Point delta = {
-			(pRight.x - pLeft.x) / (float)windowWidth,
-			(pRight.y - pLeft.y) / (float)windowWidth
+			(pRight.x - pLeft.x) / (float)ctx->width,
+			(pRight.y - pLeft.y) / (float)ctx->width
 		};
 
 		pLeft.x += ctx->camera.position.x;
 		pLeft.y += ctx->camera.position.y;
 
-		for(int i = 0; i < windowWidth; i++) {
+		for(int i = 0; i < ctx->width; i++) {
 			unsigned int offset = (((int)pLeft.y & ctx->map.widthp) << ctx->map.shift) + ((int)pLeft.x & ctx->map.heightp);
 			float top = (ctx->camera.height - (float)ctx->map.altitude[offset]) / z * 240.0f + ctx->camera.horizon;
-			DrawVerticalLine(pixels, i, (int)top, ctx->map.hiddeny[i], ctx->map.color[offset]);
+			DrawVerticalLine(pixels, pitch, i, (int)top, ctx->map.hiddeny[i], ctx->map.color[offset]);
 			/*
 				Слегка ускоряем рендер путём скрытия
 				накладываемых друг на друга частей линий
@@ -417,9 +414,9 @@ static void ProcessSDLEvents(struct sContext *ctx) {
 						SDL_Log("Reloading map using \"%s\" and \"%s\".", ev.drop.file, ctx->droppedFile);
 						FreeMap(&ctx->map);
 						if(typesym == 'C')
-							ctx->redrawMap = LoadMap(&ctx->map, ev.drop.file, ctx->droppedFile);
+							ctx->redrawMap = LoadMap(ctx, ev.drop.file, ctx->droppedFile);
 						else
-							ctx->redrawMap = LoadMap(&ctx->map, ctx->droppedFile, ev.drop.file);
+							ctx->redrawMap = LoadMap(ctx, ctx->droppedFile, ev.drop.file);
 						SDL_free(ev.drop.file);
 						SDL_free(ctx->droppedFile);
 						ctx->droppedFile = NULL;
@@ -430,15 +427,14 @@ static void ProcessSDLEvents(struct sContext *ctx) {
 	}
 }
 
-static SDL_Window *CreateSDLWindow(unsigned int flags) {
-	SDL_Window *wnd;
-	if((wnd = SDL_CreateWindow("VoxelSpace SDL",
+static int CreateSDLWindow(struct sContext *ctx, unsigned int flags) {
+	if((ctx->wnd = SDL_CreateWindow("VoxelSpace SDL",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		WINDOW_WIDTH, WINDOW_HEIGHT, flags
-	)) == NULL) return NULL;
-	SDL_GetWindowSize(wnd, &windowWidth, &windowHeight);
+	)) == NULL) return 0;
+	SDL_GetWindowSize(ctx->wnd, &ctx->width, &ctx->height);
 	SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
-	return wnd;
+	return 1;
 }
 
 static void EndSDL(struct sContext *ctx) {
@@ -480,7 +476,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	if((ctx.wnd = CreateSDLWindow(WINDOW_FLAGS)) == NULL) {
+	if(!CreateSDLWindow(&ctx, WINDOW_FLAGS)) {
 		SDL_LogError(0, "Failed to create SDL window: %s.", SDL_GetError());
 		EndSDL(&ctx);
 		return 1;
@@ -508,14 +504,14 @@ int main(int argc, char *argv[]) {
 	*/
 	if((ctx.screen = SDL_CreateTexture(ctx.render,
 		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-		windowWidth, windowHeight
+		ctx.width, ctx.height
 	)) == NULL) {
 		SDL_LogError(0, "Failed to create SDL texture: %s.", SDL_GetError());
 		EndSDL(&ctx);
 		return 1;
 	}
 
-	ctx.redrawMap = LoadMap(&ctx.map, "maps/C1W.bmp", "maps/D1.bmp");
+	ctx.redrawMap = LoadMap(&ctx, "maps/C1W.bmp", "maps/D1.bmp");
 
 	unsigned int lastTime = 0, currentTime = 0;
 	while(ctx.running) {
@@ -530,9 +526,10 @@ int main(int argc, char *argv[]) {
 
 		// Перерисовываем мир, если нужно
 		if(ctx.redrawMap) {
-			int *pixels, pitch;
+			int *pixels;
+			int pitch;
 			SDL_LockTexture(ctx.screen, NULL, (void **)&pixels, &pitch);
-			DrawMap(&ctx, pixels);
+			DrawMap(&ctx, pixels, (pitch / sizeof(int)));
 			SDL_UnlockTexture(ctx.screen);
 			ctx.redrawMap = 0;
 		}
