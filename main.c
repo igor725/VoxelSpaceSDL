@@ -56,6 +56,10 @@ static int LoadMap(struct sContext *ctx, const char *diffuse, const char *height
 	map->hiddeny = SDL_calloc(4, ctx->width);
 	map->color = SDL_calloc(4, sHeight->w * sHeight->h);
 	map->altitude = SDL_calloc(1, sHeight->w * sHeight->h);
+	if(!map->hiddeny || !map->color || !map->altitude) {
+		SDL_LogError(0, "Memory allocation failed.");
+		return 0;
+	}
 
 	const unsigned char *datah = sHeight->pixels;
 	unsigned int *datac = sDiffuse->pixels;
