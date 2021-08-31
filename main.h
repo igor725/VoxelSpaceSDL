@@ -2,6 +2,15 @@
 #include "SDL_render.h"
 #include "SDL_gamecontroller.h"
 
+#ifdef USE_SDL_IMAGE
+#include <SDL_image.h>
+#endif
+
+#ifndef min
+#define min(a, b) (((a)<(b))?(a):(b))
+#define max(a, b) (((a)>(b))?(a):(b))
+#endif
+
 typedef struct sPoint {
 	float x, y;
 } Point;

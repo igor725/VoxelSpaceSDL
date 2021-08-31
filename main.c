@@ -5,10 +5,6 @@
 #include <SDL.h>
 #include "main.h"
 
-#ifdef USE_SDL_IMAGE
-#include <SDL_image.h>
-#endif
-
 static SDL_Surface *ReencodeSurface(SDL_Surface *old) {
 	if(old == NULL) return NULL;
 	SDL_Surface *new = old;
@@ -126,7 +122,9 @@ static unsigned char GetHeight(struct sMap *map, Point *p) {
 
 static void NormalizeCameraPosition(struct sContext *ctx) {
 	float minHeight = (float)GetHeight(&ctx->map, &ctx->camera.position) + 10.0f;
-	if(ctx->camera.height < minHeight) ctx->camera.height = minHeight;
+	ctx->camera.height = max(minHeight, min(ctx->camera.height, 1000.0f));
+	ctx->camera.horizon = max(-ctx->height, min(ctx->camera.horizon, ctx->height));
+	if(SDL_fabsf(ctx->camera.angle) > M_PI * 2) ctx->camera.angle = 0;
 }
 
 static void DrawVerticalLine(int *pixels, int pitch, int x, int top, int bottom, int color) {
@@ -150,7 +148,7 @@ static void AdjustRenderDistanceBy(struct sContext *ctx, float value) {
 }
 
 static void ResetRenderDistance(struct sContext *ctx) {
-	AdjustRenderDistanceBy(ctx, 800.0f - ctx->camera.distance);
+	AdjustRenderDistanceBy(ctx, 750.0f - ctx->camera.distance);
 }
 
 static void DrawMap(struct sContext *ctx, int *pixels, int pitch) {
@@ -245,7 +243,7 @@ static int ProcessControllerInput(struct sContext *ctx, float deltaMult) {
 	}
 
 	if(SDL_fabsf(rightStick.x) > 0.15f || SDL_fabsf(rightStick.y) > 0.15f) {
-		ctx->camera.angle -= rightStick.x * 0.1f * deltaMult;
+		ctx->camera.angle -= rightStick.x * 0.08f * deltaMult;
 		ctx->camera.horizon -= rightStick.y * 25.0f * deltaMult;
 		ctx->redrawMap = 1;
 		handled = 1;
@@ -336,10 +334,10 @@ static void ProcessKeyboardInput(struct sContext *ctx, float deltaMult) {
 	if(input[1]) {
 		float direction = (input[1] == SDL_SCANCODE_A ? 1.0f : -1.0f);
 		if(ctx->mouseGrabbed){
-			ctx->camera.position.x -= 4.0f * direction * SDL_cosf(ctx->camera.angle) * deltaMult;
-			ctx->camera.position.y -= 4.0f * direction * SDL_sinf(-ctx->camera.angle) * deltaMult;
+			ctx->camera.position.x -=  direction * 4.0f * SDL_cosf(ctx->camera.angle) * deltaMult;
+			ctx->camera.position.y -=  direction * 4.0f * SDL_sinf(-ctx->camera.angle) * deltaMult;
 		} else
-			ctx->camera.angle += 0.1f * direction * deltaMult;
+			ctx->camera.angle += direction * 0.08f * deltaMult;
 	}
 	if(input[0]) {
 		float direction = input[0] == SDL_SCANCODE_W ? 1.0f : -1.0f;
@@ -363,6 +361,9 @@ static void UpdateInput(struct sContext *ctx) {
 
 	if(!ProcessControllerInput(ctx, deltaMult))
 		ProcessKeyboardInput(ctx, deltaMult);
+
+	// Запрещаем летать за пределами мира
+	NormalizeCameraPosition(ctx);
 }
 
 static void ToggleMouseGrab(struct sContext *ctx) {
@@ -493,10 +494,11 @@ int main(int argc, char *argv[]) {
 			.height = 178.0f,
 			.horizon = CAMERA_HORIZON,
 			.ihorizon = CAMERA_HORIZON,
-			.distance = 800.0f
+			.distance = 750.0f
 		}
 	};
 
+	SDL_SetMainReady();
 	// Инициализируем SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
 		SDL_LogError(0, "SDL_Init failed: %s.", SDL_GetError());
@@ -540,16 +542,13 @@ int main(int argc, char *argv[]) {
 
 	ctx.redrawMap = LoadMap(&ctx, "maps/C1W.bmp", "maps/D1.bmp");
 
-	unsigned int lastTime = 0, currentTime = 0;
+	unsigned int lastTime = 0, currentTime = 0, ticks = 0;
 	while(ctx.running) {
 		// Обрабатываем накопившиеся эвенты SDL
 		ProcessSDLEvents(&ctx);
 
 		// Изменяем положение камеры в соответствии с нажатыми кнопками
 		UpdateInput(&ctx);
-
-		// Запрещаем летать за пределами мира
-		NormalizeCameraPosition(&ctx);
 
 		// Перерисовываем мир, если нужно
 		if(ctx.redrawMap) {
