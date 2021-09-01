@@ -37,14 +37,14 @@ Comanche's Voxel Space rendering algorithm written in C using SDL.
 
 ## Building
 
-* On Windows you need to run the ``build.bat`` batch script in Visual Studio Developer Environment. Or... just open Visual Studio Code and press F5 button. If you need png image support, open ``build.bat`` in the text editor and set ``USE_SDL_IMAGE`` to ``1``.
+* On Windows you need to run the ``build.bat`` batch script in Visual Studio Developer Environment. Or... just open Visual Studio Code and press F5 button. If you need png image support, run ``build.bat sdlimage``.
 * There are no build script for Linux yet, but it can be compiled without any changes in the source code. Just use ``gcc main.c -oout/vs -DUSE_SDL_IMAGE $(pkg-config --cflags --libs sdl2 SDL2_image) -lm``.
 
 
 ## Notes
 
 * You can change map by dropping two images (height map and diffuse map) on the Voxel Space window.
-* Only images with the same dimensions are supported.
+* The first letter in file name tells to the VoxelSpace how to use dropped file. ``D`` - use as a height map, and ``C`` - use as a diffuse map.
 
 ## Thanks
 

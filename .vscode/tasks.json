@@ -5,7 +5,7 @@
 			"type": "shell",
 			"label": "Build VoxelSpace",
 			"command": "build.bat",
-			"args": [],
+			"args": ["dbg", "sdlimage"],
 			"problemMatcher": [
 				"$msCompile"
 			],

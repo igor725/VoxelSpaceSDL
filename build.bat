@@ -1,18 +1,32 @@
 @echo off
 setlocal enableextensions enabledelayedexpansion
-set USE_SDL_IMAGE=0
-set VOXEL_CFLAGS=/MTd /Z7 /FC
+set VOXEL_USE_SDLIMAGE=0
+set VOXEL_CFLAGS=/FC
 set VOXEL_OUT_EXE=vs.exe
 set VOXEL_INCLUDES=/ISDL2\include\
 set VOXEL_LIBS=%Platform%\SDL2.lib
 set VOXEL_LIBPATHS=/libpath:SDL2\lib\
 
-IF "!USE_SDL_IMAGE!"=="1" (
+:argloop
+IF "%1"=="" goto argfin
+IF "%1"=="sdlimage" set VOXEL_USE_SDLIMAGE=1
+IF "%1"=="dbg" set VOXEL_DEBUG=1
+SHIFT
+goto argloop
+
+:argfin
+IF "!VOXEL_USE_SDLIMAGE!"=="1" (
 	set VOXEL_INCLUDES=!VOXEL_INCLUDES! /ISDL2_Image\include\
 	set VOXEL_LIBPATHS=!VOXEL_LIBPATHS! /libpath:SDL2_image\lib\
 	set VOXEL_LIBS=!VOXEL_LIBS! !Platform!\SDL2_image.lib
 	set VOXEL_CFLAGS=!VOXEL_CFLAGS! /DUSE_SDL_IMAGE
 	set PATH=SDL2_Image\lib\!Platform!;!PATH!
+)
+
+IF "%VOXEL_DEBUG%"=="1" (
+	set VOXEL_CFLAGS=%VOXEL_CFLAGS% /MTd /Z7
+) else (
+	set VOXEL_CFLAGS=%VOXEL_CFLAGS% /MT
 )
 
 IF NOT EXIST out MD out
