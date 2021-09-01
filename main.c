@@ -148,7 +148,7 @@ static void AdjustRenderDistanceBy(struct sContext *ctx, float value) {
 }
 
 static void ResetRenderDistance(struct sContext *ctx) {
-	AdjustRenderDistanceBy(ctx, 750.0f - ctx->camera.distance);
+	AdjustRenderDistanceBy(ctx, CAMERA_DISTANCE_DEFAULT - ctx->camera.distance);
 }
 
 static void DrawMap(struct sContext *ctx, int *pixels, int pitch) {
@@ -205,7 +205,7 @@ void CameraPitch(struct sCamera *camera, float spd) {
 }
 
 void CameraResetPitch(struct sCamera *camera) {
-	camera->horizon = camera->ihorizon;
+	camera->horizon = CAMERA_HORIZON_DEFAULT;
 }
 
 void CameraRotate(struct sCamera *camera, float spd) {
@@ -215,7 +215,7 @@ void CameraRotate(struct sCamera *camera, float spd) {
 void CameraMoveForward(struct sCamera *camera, float spd) {
 	camera->position.x += spd * CAMERA_MOVE_STEP * SDL_sinf(camera->angle);
 	camera->position.y += spd * CAMERA_MOVE_STEP * SDL_cosf(camera->angle);
-	camera->height -= spd * (camera->horizon - camera->ihorizon) * CAMERA_HEIGHT_MOD;
+	camera->height -= spd * (camera->horizon - CAMERA_HORIZON_DEFAULT) * CAMERA_HEIGHT_MOD;
 }
 
 /*
@@ -540,9 +540,8 @@ int main(int argc, char *argv[]) {
 				.y = 800.0f
 			},
 			.height = 178.0f,
-			.horizon = CAMERA_HORIZON,
-			.ihorizon = CAMERA_HORIZON,
-			.distance = 750.0f
+			.horizon = CAMERA_HORIZON_DEFAULT,
+			.distance = CAMERA_DISTANCE_DEFAULT
 		}
 	};
 

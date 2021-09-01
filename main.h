@@ -27,7 +27,6 @@ struct sCamera {
 	Point position;
 	float height, angle;
 	float distance, horizon;
-	float ihorizon;
 };
 
 struct sContext {
@@ -48,12 +47,13 @@ struct sContext {
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT (WINDOW_WIDTH * 0.75)
 #define MOUSE_SENS 0.057f
-#define CAMERA_HORIZON ((float)WINDOW_HEIGHT * 0.50f)
 #define CAMERA_MOVE_STEP 4.0f
 #define CAMERA_ANGLE_STEP 0.08f
 #define CAMERA_HORIZON_STEP 23.0f
 #define CAMERA_HEIGHT_STEP 4.0f
 #define CAMERA_HEIGHT_MOD 0.02f
 #define CAMERA_DISTANCE_STEP 150.0f
+#define CAMERA_DISTANCE_DEFAULT 750.0f
+#define CAMERA_HORIZON_DEFAULT ((float)WINDOW_HEIGHT * 0.50f)
 #define WINDOW_FLAGS SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
 #define RENDERER_FLAGS SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE
