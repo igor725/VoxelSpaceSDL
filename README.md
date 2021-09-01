@@ -7,16 +7,32 @@ Comanche's Voxel Space rendering algorithm written in C using SDL.
 ![vs_2021-08-30_12-15-23.png](https://user-images.githubusercontent.com/40758030/131331416-0491eb7e-dcde-4857-a524-c87d94ae4a76.png)
 
 
-## Keybindings
+## Bindings
+
+### Keyboard + Mouse
 
 * LMB - Free look
+* ESC - Close application
 * W/S - Move camera forward/backward
 * A/D - Rotate camera or strafe (if LMB pressed)
 * E/Q - Adjust camera height
 * R/F - Adjust camera pitch
+* C - Reset camera pitch
 * Space - Increase render distance
 * Shift + Space - Decrease render distance
 * LCTRL + Space - Reset render distance to default value
+
+### Game Controller
+
+* Left stick - Move camera
+* Right stick - Rotate camera
+* Right stick button - Reset camera pitch
+* Left trigger - Increase camera movement speed
+* Right trigger - Increase camera rotation speed
+* Left shoulder - Decrease render distance
+* Right shoulder - Increase render distance
+* B - Close application
+* Y - Reset render distance to default value
 
 ## Building
 

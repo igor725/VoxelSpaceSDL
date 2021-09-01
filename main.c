@@ -191,6 +191,33 @@ static void DrawMap(struct sContext *ctx, int *pixels, int pitch) {
 	}
 }
 
+void CameraStrafeHoriz(struct sCamera *camera, float spd) {
+	camera->position.x +=  spd * CAMERA_MOVE_STEP * SDL_cosf(camera->angle);
+	camera->position.y +=  spd * CAMERA_MOVE_STEP * SDL_sinf(-camera->angle);
+}
+
+void CameraStrafeVert(struct sCamera *camera, float spd) {
+	camera->height += spd * CAMERA_HEIGHT_STEP;
+}
+
+void CameraPitch(struct sCamera *camera, float spd) {
+	camera->horizon -= spd * CAMERA_HORIZON_STEP;
+}
+
+void CameraResetPitch(struct sCamera *camera) {
+	camera->horizon = camera->ihorizon;
+}
+
+void CameraRotate(struct sCamera *camera, float spd) {
+	camera->angle -= spd * CAMERA_ANGLE_STEP;
+}
+
+void CameraMoveForward(struct sCamera *camera, float spd) {
+	camera->position.x += spd * CAMERA_MOVE_STEP * SDL_sinf(camera->angle);
+	camera->position.y += spd * CAMERA_MOVE_STEP * SDL_cosf(camera->angle);
+	camera->height -= spd * (camera->horizon - camera->ihorizon) * CAMERA_HEIGHT_MOD;
+}
+
 /*
 	Выполняем определённые действия
 	при нажатии пользователем кнопок.
@@ -207,14 +234,31 @@ static void ProcessControllerButtonDown(struct sContext *ctx, SDL_GameController
 			break;
 		case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
 		case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
-			AdjustRenderDistanceBy(ctx, button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER ? -150.0f : 150.0f);
+			AdjustRenderDistanceBy(ctx, button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER ? -CAMERA_DISTANCE_STEP : CAMERA_DISTANCE_STEP);
+			break;
+		case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
+			CameraResetPitch(&ctx->camera);
+			ctx->redrawMap = 1;
 			break;
 		default: break;
 	}
 }
 
-static void ProcessControllerButtonUp(struct sContext *ctx, SDL_GameControllerButton b) {
-
+static void ProcessControllerButtonHold(struct sContext *ctx, SDL_GameControllerButton button, float deltaMult) {
+	switch (button) {
+		case SDL_CONTROLLER_BUTTON_DPAD_UP:
+		case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+			CameraStrafeVert(&ctx->camera, (button == SDL_CONTROLLER_BUTTON_DPAD_UP ? deltaMult : -deltaMult));
+			ctx->redrawMap = 1;
+			break;
+		case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+		case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+			CameraStrafeHoriz(&ctx->camera, (button == SDL_CONTROLLER_BUTTON_DPAD_LEFT ? -deltaMult : deltaMult));
+			ctx->redrawMap = 1;
+			break;
+		
+		default: break;
+	}
 }
 
 static int ProcessControllerInput(struct sContext *ctx, float deltaMult) {
@@ -230,21 +274,25 @@ static int ProcessControllerInput(struct sContext *ctx, float deltaMult) {
 		.y = (float)SDL_GameControllerGetAxis(ctx->controller, SDL_CONTROLLER_AXIS_RIGHTY) / 32767.0f
 	};
 
+	Point trigger = {
+		.x = (float)SDL_GameControllerGetAxis(ctx->controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT) / 32767.0f,
+		.y = (float)SDL_GameControllerGetAxis(ctx->controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT) / 32767.0f
+	};
+
 	int handled = 0;
 
 	if(SDL_fabsf(leftStick.x) > 0.15f || SDL_fabsf(leftStick.y) > 0.15f) {
-		ctx->camera.position.x += (4.0f * leftStick.x * SDL_cosf(ctx->camera.angle) * deltaMult) +
-		(leftStick.y * 4.0f * SDL_sinf(ctx->camera.angle) * deltaMult);
-		ctx->camera.position.y += (4.0f * leftStick.x * SDL_sinf(-ctx->camera.angle) * deltaMult) +
-		(leftStick.y * 4.0f * SDL_cosf(ctx->camera.angle) * deltaMult);
-		ctx->camera.height -= (ctx->camera.horizon - ctx->camera.ihorizon) * leftStick.y * 0.02f * deltaMult;
+		float speedup = 1.0f + trigger.x;
+		CameraMoveForward(&ctx->camera, leftStick.y * speedup * deltaMult);
+		CameraStrafeHoriz(&ctx->camera, leftStick.x * speedup * deltaMult);
 		ctx->redrawMap = 1;
 		handled = 1;
 	}
 
 	if(SDL_fabsf(rightStick.x) > 0.15f || SDL_fabsf(rightStick.y) > 0.15f) {
-		ctx->camera.angle -= rightStick.x * 0.08f * deltaMult;
-		ctx->camera.horizon -= rightStick.y * 25.0f * deltaMult;
+		float speedup = 1.0f + trigger.y;
+		CameraRotate(&ctx->camera, rightStick.x * speedup * deltaMult);
+		CameraPitch(&ctx->camera, rightStick.y * speedup * deltaMult);
 		ctx->redrawMap = 1;
 		handled = 1;
 	}
@@ -255,10 +303,10 @@ static int ProcessControllerInput(struct sContext *ctx, float deltaMult) {
 				ProcessControllerButtonDown(ctx, i);
 				controllerButtonsState[i] = 1;
 				handled = 1;
-			}
+			} else ProcessControllerButtonHold(ctx, i, deltaMult);
 		} else {
 			if(controllerButtonsState[i]) {
-				ProcessControllerButtonUp(ctx, i);
+				// ProcessControllerButtonUp(ctx, i);
 				controllerButtonsState[i] = 0;
 				handled = 1;
 			}
@@ -294,7 +342,11 @@ static void ProcessKeyDown(struct sContext *ctx, SDL_KeyboardEvent *ev) {
 			if(ev->keysym.mod & KMOD_CTRL)
 				ResetRenderDistance(ctx);
 			else
-				AdjustRenderDistanceBy(ctx, ev->keysym.mod & KMOD_SHIFT ? -150.0f : 150.0f);
+				AdjustRenderDistanceBy(ctx, ev->keysym.mod & KMOD_SHIFT ? -CAMERA_DISTANCE_STEP : CAMERA_DISTANCE_STEP);
+			break;
+		case SDL_SCANCODE_C:
+			CameraResetPitch(&ctx->camera);
+			ctx->redrawMap = 1;
 			break;
 		case SDL_SCANCODE_ESCAPE: // Закрываем приложение при нажатии ESC
 			ctx->running = 0;
@@ -328,23 +380,18 @@ static void ProcessKeyUp(SDL_KeyboardEvent *ev) {
 
 static void ProcessKeyboardInput(struct sContext *ctx, float deltaMult) {
 	if(input[3])
-		ctx->camera.horizon += (input[3] == SDL_SCANCODE_R ? 25.0f : -25.0f) * deltaMult;
+		CameraPitch(&ctx->camera, (input[3] == SDL_SCANCODE_R ? -deltaMult : deltaMult));
 	if(input[2])
-		ctx->camera.height += (input[2] == SDL_SCANCODE_E ? 4.0f : -4.0f) * deltaMult;
+		CameraStrafeVert(&ctx->camera, (input[2] == SDL_SCANCODE_Q ? -deltaMult : deltaMult));
 	if(input[1]) {
-		float direction = (input[1] == SDL_SCANCODE_A ? 1.0f : -1.0f);
-		if(ctx->mouseGrabbed){
-			ctx->camera.position.x -=  direction * 4.0f * SDL_cosf(ctx->camera.angle) * deltaMult;
-			ctx->camera.position.y -=  direction * 4.0f * SDL_sinf(-ctx->camera.angle) * deltaMult;
-		} else
-			ctx->camera.angle += direction * 0.08f * deltaMult;
+		float direction = (input[1] == SDL_SCANCODE_A ? -deltaMult : deltaMult);
+		if(ctx->mouseGrabbed)
+			CameraStrafeHoriz(&ctx->camera, direction);
+		else
+			CameraRotate(&ctx->camera, direction);
 	}
-	if(input[0]) {
-		float direction = input[0] == SDL_SCANCODE_W ? 1.0f : -1.0f;
-		ctx->camera.position.x -= direction * 4.0f * SDL_sinf(ctx->camera.angle) * deltaMult;
-		ctx->camera.position.y -= direction * 4.0f * SDL_cosf(ctx->camera.angle) * deltaMult;
-		ctx->camera.height += (ctx->camera.horizon - ctx->camera.ihorizon) * direction * 0.02f * deltaMult;
-	}
+	if(input[0])
+		CameraMoveForward(&ctx->camera, (input[0] == SDL_SCANCODE_W ? -deltaMult : deltaMult));
 
 	/*
 		Рисуем мир заново, если была нажата
@@ -359,6 +406,7 @@ static void ProcessKeyboardInput(struct sContext *ctx, float deltaMult) {
 static void UpdateInput(struct sContext *ctx) {
 	float deltaMult = (float)ctx->deltaTime * 0.03f;
 
+	// Если камерой управляет контроллер, то не прозваниваем клавиатуру
 	if(!ProcessControllerInput(ctx, deltaMult))
 		ProcessKeyboardInput(ctx, deltaMult);
 
