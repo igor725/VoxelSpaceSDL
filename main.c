@@ -478,7 +478,7 @@ static void ProcessSDLEvents(struct sContext *ctx) {
 				tmpsymptr = strrchr(ev.drop.file, '\\');
 				if(!tmpsymptr) tmpsymptr = strrchr(ev.drop.file, '/');
 				typesym = tmpsymptr ? *++tmpsymptr : *ev.drop.file;
-				if(typesym == 'C' || typesym == 'D') {
+				if(typesym == 'C' || typesym == 'c' || typesym == 'D' || typesym == 'd') {
 					if(!ctx->droppedFile) {
 						ctx->droppedFile = ev.drop.file;
 						ctx->droppedFileType = typesym;
@@ -489,7 +489,7 @@ static void ProcessSDLEvents(struct sContext *ctx) {
 					} else {
 						SDL_Log("Reloading map using \"%s\" and \"%s\".", ev.drop.file, ctx->droppedFile);
 						FreeMap(&ctx->map);
-						if(typesym == 'C')
+						if(typesym == 'C' || typesym == 'c')
 							ctx->redrawMap = LoadMap(ctx, ev.drop.file, ctx->droppedFile);
 						else
 							ctx->redrawMap = LoadMap(ctx, ctx->droppedFile, ev.drop.file);
