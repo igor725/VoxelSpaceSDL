@@ -153,10 +153,9 @@ static void ResetRenderDistance(struct sContext *ctx) {
 
 static void DrawMap(struct sContext *ctx, int *pixels, int pitch) {
 	for(int i = 0; i < ctx->width * ctx->height; i++)
-		pixels[i] = 0x9090E0FF;
+		pixels[i] = SKY_COLOR;
 
 	if(!ctx->map.ready) return;
-
 	float sinang = SDL_sinf(ctx->camera.angle),
 	cosang = SDL_cosf(ctx->camera.angle);
 
@@ -171,22 +170,18 @@ static void DrawMap(struct sContext *ctx, int *pixels, int pitch) {
 			(pRight.x - pLeft.x) / (float)ctx->width,
 			(pRight.y - pLeft.y) / (float)ctx->width
 		};
-
-		pLeft.x += ctx->camera.position.x;
-		pLeft.y += ctx->camera.position.y;
-
+		POINT_ADD(pLeft, ctx->camera.position);
 		for(int i = 0; i < ctx->width; i++) {
-			unsigned int offset = (((int)pLeft.y & ctx->map.widthp) << ctx->map.shift) + ((int)pLeft.x & ctx->map.heightp);
-			float top = (ctx->camera.height - (float)ctx->map.altitude[offset]) / z * 240.0f + ctx->camera.horizon;
-			DrawVerticalLine(pixels, pitch, i, (int)top, ctx->map.hiddeny[i], ctx->map.color[offset]);
+			int offset = (((int)pLeft.y & ctx->map.widthp) << ctx->map.shift) + ((int)pLeft.x & ctx->map.heightp);
+			int top = (ctx->camera.height - (float)ctx->map.altitude[offset]) / z * 240.0f + ctx->camera.horizon;
+			DrawVerticalLine(pixels, pitch, i, top, ctx->map.hiddeny[i], ctx->map.color[offset]);
 			/*
 				Слегка ускоряем рендер путём скрытия
 				накладываемых друг на друга частей линий
 			*/
 			if(top < ctx->map.hiddeny[i]) ctx->map.hiddeny[i] = (int)top;
-			pLeft.x += delta.x; pLeft.y += delta.y;
+			POINT_ADD(pLeft, delta);
 		}
-
 		deltaz += ctx->zstep;
 	}
 }
@@ -256,7 +251,7 @@ static void ProcessControllerButtonHold(struct sContext *ctx, SDL_GameController
 			CameraStrafeHoriz(&ctx->camera, (button == SDL_CONTROLLER_BUTTON_DPAD_LEFT ? -deltaMult : deltaMult));
 			ctx->redrawMap = 1;
 			break;
-		
+
 		default: break;
 	}
 }
@@ -346,6 +341,14 @@ static void ProcessKeyDown(struct sContext *ctx, SDL_KeyboardEvent *ev) {
 			break;
 		case SDL_SCANCODE_C:
 			CameraResetPitch(&ctx->camera);
+			ctx->redrawMap = 1;
+			break;
+		case SDL_SCANCODE_J:
+			ctx->zstep = max(CAMERA_ZSTEP_MIN, (ctx->zstep -= CAMERA_ZSTEP_STEP));
+			ctx->redrawMap = 1;
+			break;
+		case SDL_SCANCODE_K:
+			ctx->zstep = min(CAMERA_ZSTEP_MAX, (ctx->zstep += CAMERA_ZSTEP_STEP));
 			ctx->redrawMap = 1;
 			break;
 		case SDL_SCANCODE_ESCAPE: // Закрываем приложение при нажатии ESC
@@ -533,13 +536,10 @@ int main(int argc, char *argv[]) {
 	(void)argc; (void)argv;
 	struct sContext ctx = {
 		.running = 1,
-		.zstep = 0.002f,
+		.zstep = CAMERA_ZSTEP_DEFAULT,
 		.camera = {
-			.position = {
-				.x = 512.0f,
-				.y = 800.0f
-			},
-			.height = 178.0f,
+			.position = CAMERA_POSITION_DEFAULT,
+			.height = CAMERA_HEIGHT_DEFAULT,
 			.horizon = CAMERA_HORIZON_DEFAULT,
 			.distance = CAMERA_DISTANCE_DEFAULT
 		}

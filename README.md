@@ -17,6 +17,7 @@ Comanche's Voxel Space rendering algorithm written in C using SDL.
 * A/D - Rotate camera or strafe (if LMB pressed)
 * E/Q - Adjust camera height
 * R/F - Adjust camera pitch
+* J/K - Adjust details level
 * C - Reset camera pitch
 * Space - Increase render distance
 * Shift + Space - Decrease render distance
