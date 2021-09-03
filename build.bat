@@ -6,11 +6,14 @@ set VOXEL_OUT_EXE=vs.exe
 set VOXEL_INCLUDES=/ISDL2\include\
 set VOXEL_LIBS=%Platform%\SDL2.lib
 set VOXEL_LIBPATHS=/libpath:SDL2\lib\
+set VOXEL_OPT=/Od
 
 :argloop
 IF "%1"=="" goto argfin
 IF "%1"=="sdlimage" set VOXEL_USE_SDLIMAGE=1
 IF "%1"=="dbg" set VOXEL_DEBUG=1
+IF "%1"=="optspeed" set VOXEL_OPT=/O2 /Ox
+IF "%1"=="optsize" set VOXEL_OPT=/O1
 SHIFT
 goto argloop
 
@@ -25,13 +28,14 @@ IF "!VOXEL_USE_SDLIMAGE!"=="1" (
 
 IF "%VOXEL_DEBUG%"=="1" (
 	set VOXEL_CFLAGS=%VOXEL_CFLAGS% /MTd /Z7
+	set VOXEL_OPT=/Od
 ) else (
 	set VOXEL_CFLAGS=%VOXEL_CFLAGS% /MT
 )
 
 IF NOT EXIST out MD out
 
-cl %VOXEL_CFLAGS% %VOXEL_INCLUDES% main.c /Foout\ /Feout\%VOXEL_OUT_EXE% /link /SUBSYSTEM:CONSOLE %VOXEL_LIBPATHS% %VOXEL_LIBS%
+cl %VOXEL_CFLAGS% %VOXEL_OPT% %VOXEL_INCLUDES% main.c /Foout\ /Feout\%VOXEL_OUT_EXE% /link /SUBSYSTEM:CONSOLE %VOXEL_LIBPATHS% %VOXEL_LIBS%
 IF %ERRORLEVEL% NEQ 0 goto error else goto allok
 
 :allok

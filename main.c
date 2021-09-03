@@ -428,7 +428,7 @@ static void CaptureController(struct sContext *ctx, int id) {
 	if (SDL_IsGameController(id)) {
 		ctx->controller = SDL_GameControllerOpen(id);
 		if(ctx->controller)
-			SDL_Log("Controller %s added.", SDL_GameControllerName(ctx->controller));
+			SDL_Log("Found controller %s.", SDL_GameControllerName(ctx->controller));
 		else
 			SDL_Log("Can't open controller #%d: %s", id, SDL_GetError());
 	}
