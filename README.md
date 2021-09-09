@@ -2,7 +2,7 @@
 
 ## Description
 
-Comanche's Voxel Space rendering algorithm written in C using SDL.
+Comanche's Voxel Space rendering algorithm written in C using SDL. You can try it in [emscripten demo](http://igvx.ru/vs_sdl/).
 
 ![vs_2021-08-30_12-15-23.png](https://user-images.githubusercontent.com/40758030/131331416-0491eb7e-dcde-4857-a524-c87d94ae4a76.png)
 

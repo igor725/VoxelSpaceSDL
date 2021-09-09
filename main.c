@@ -1,5 +1,8 @@
 #include <string.h>
 #include <stdio.h>
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
 // Говорим SDL, что не нужно переписывать main
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
@@ -534,6 +537,33 @@ static void EndSDL(struct sContext *ctx) {
 	SDL_Quit();
 }
 
+static void DoLoopStep(struct sContext *ctx) {
+	// Обрабатываем накопившиеся эвенты SDL
+	ProcessSDLEvents(ctx);
+
+	// Изменяем положение камеры в соответствии с нажатыми кнопками
+	UpdateInput(ctx);
+
+	// Перерисовываем мир, если нужно
+	if(ctx->redrawMap) {
+		int *pixels;
+		int pitch;
+		SDL_LockTexture(ctx->screen, NULL, (void **)&pixels, &pitch);
+		DrawMap(ctx, pixels, (pitch / sizeof(int)));
+		SDL_UnlockTexture(ctx->screen);
+		ctx->redrawMap = 0;
+	}
+
+	// Рисуем в SDL окне нашу текстуру
+	SDL_RenderClear(ctx->render);
+	SDL_RenderCopy(ctx->render, ctx->screen, NULL, NULL);
+	SDL_RenderPresent(ctx->render);
+
+	ctx->lastTime = ctx->currTime;
+	ctx->currTime = SDL_GetTicks();
+	ctx->deltaTime = ctx->currTime - ctx->lastTime;
+}
+
 int main(int argc, char *argv[]) {
 	(void)argc; (void)argv;
 	struct sContext ctx = {
@@ -593,33 +623,11 @@ int main(int argc, char *argv[]) {
 
 	ctx.redrawMap = LoadMap(&ctx, "maps/C1W.bmp", "maps/D1.bmp");
 
-	unsigned int lastTime = 0, currentTime = 0, ticks = 0;
-	while(ctx.running) {
-		// Обрабатываем накопившиеся эвенты SDL
-		ProcessSDLEvents(&ctx);
-
-		// Изменяем положение камеры в соответствии с нажатыми кнопками
-		UpdateInput(&ctx);
-
-		// Перерисовываем мир, если нужно
-		if(ctx.redrawMap) {
-			int *pixels;
-			int pitch;
-			SDL_LockTexture(ctx.screen, NULL, (void **)&pixels, &pitch);
-			DrawMap(&ctx, pixels, (pitch / sizeof(int)));
-			SDL_UnlockTexture(ctx.screen);
-			ctx.redrawMap = 0;
-		}
-
-		// Рисуем в SDL окне нашу текстуру
-		SDL_RenderClear(ctx.render);
-		SDL_RenderCopy(ctx.render, ctx.screen, NULL, NULL);
-		SDL_RenderPresent(ctx.render);
-
-		lastTime = currentTime;
-		currentTime = SDL_GetTicks();
-		ctx.deltaTime = currentTime - lastTime;
-	}
+#ifdef EMSCRIPTEN
+	emscripten_set_main_loop_arg((em_arg_callback_func)DoLoopStep, (void *)&ctx, 0, 1);
+#else
+	while(ctx.running) DoLoopStep(&ctx);
+#endif
 
 	// Очищаемся
 	FreeMap(&ctx.map);

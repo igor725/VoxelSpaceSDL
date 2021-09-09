@@ -35,8 +35,9 @@ struct sCamera {
 struct sContext {
 	float zstep;
 	int running, redrawMap;
-	int deltaTime, mouseGrabbed;
-	int supportControllers;
+	int mouseGrabbed, supportControllers;
+	unsigned int lastTime, currTime;
+	int deltaTime;
 	int width, height;
 	char droppedFileType;
 	char *droppedFile;
