@@ -36,6 +36,7 @@ struct sContext {
 	float zstep;
 	int running, redrawMap;
 	int deltaTime, mouseGrabbed;
+	int supportControllers;
 	int width, height;
 	char droppedFileType;
 	char *droppedFile;

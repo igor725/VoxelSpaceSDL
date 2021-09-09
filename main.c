@@ -410,7 +410,7 @@ static void UpdateInput(struct sContext *ctx) {
 	float deltaMult = (float)ctx->deltaTime * 0.03f;
 
 	// Если камерой управляет контроллер, то не прозваниваем клавиатуру
-	if(!ProcessControllerInput(ctx, deltaMult))
+	if(!ctx->supportControllers || !ProcessControllerInput(ctx, deltaMult))
 		ProcessKeyboardInput(ctx, deltaMult);
 
 	// Запрещаем летать за пределами мира
@@ -472,9 +472,11 @@ static void ProcessSDLEvents(struct sContext *ctx) {
 				}
 				break;
 			case SDL_CONTROLLERDEVICEADDED:
+				if(!ctx->supportControllers) break;
 				CaptureController(ctx, ev.cdevice.which);
 				break;
 			case SDL_CONTROLLERDEVICEREMOVED:
+				if(!ctx->supportControllers) break;
 				ReleaseController(ctx, ev.cdevice.which);
 				break;
 			case SDL_DROPFILE:
@@ -548,9 +550,11 @@ int main(int argc, char *argv[]) {
 	SDL_SetMainReady();
 	// Инициализируем SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
-		SDL_LogError(0, "SDL_Init failed: %s.", SDL_GetError());
-		return 1;
-	}
+		if(SDL_Init(SDL_INIT_VIDEO) != 0) {
+			SDL_LogError(0, "SDL_Init failed: %s.", SDL_GetError());
+			return 1;
+		} else ctx.supportControllers = 0;
+	} else ctx.supportControllers = 1;
 
 	if(!CreateSDLWindow(&ctx, WINDOW_FLAGS)) {
 		SDL_LogError(0, "Failed to create SDL window: %s.", SDL_GetError());
