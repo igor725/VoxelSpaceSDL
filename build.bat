@@ -4,7 +4,7 @@ set VOXEL_USE_SDLIMAGE=0
 set VOXEL_CFLAGS=/FC
 set VOXEL_OUT_EXE=vs.exe
 set VOXEL_INCLUDES=/ISDL2\include\
-set VOXEL_LIBS=%Platform%\SDL2.lib
+set VOXEL_LIBS=%VSCMD_ARG_TGT_ARCH%\SDL2.lib
 set VOXEL_LIBPATHS=/libpath:SDL2\lib\
 set VOXEL_OPT=/Od
 
@@ -21,9 +21,9 @@ goto argloop
 IF "!VOXEL_USE_SDLIMAGE!"=="1" (
 	set VOXEL_INCLUDES=!VOXEL_INCLUDES! /ISDL2_Image\include\
 	set VOXEL_LIBPATHS=!VOXEL_LIBPATHS! /libpath:SDL2_image\lib\
-	set VOXEL_LIBS=!VOXEL_LIBS! !Platform!\SDL2_image.lib
+	set VOXEL_LIBS=!VOXEL_LIBS! !VSCMD_ARG_TGT_ARCH!\SDL2_image.lib
 	set VOXEL_CFLAGS=!VOXEL_CFLAGS! /DUSE_SDL_IMAGE
-	set PATH=SDL2_Image\lib\!Platform!;!PATH!
+	set PATH=SDL2_Image\lib\!VSCMD_ARG_TGT_ARCH!;!PATH!
 )
 
 IF "%VOXEL_DEBUG%"=="1" (
