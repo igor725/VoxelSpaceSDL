@@ -41,8 +41,8 @@ IF %ERRORLEVEL% NEQ 0 goto error else goto allok
 
 :allok
 endlocal
-exit 0
+exit /b 0
 
 :error
 endlocal
-exit 1
+exit /b 1

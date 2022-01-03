@@ -39,7 +39,7 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 ## Building
 
 * On Windows you need to run the ``build.bat`` batch script in Visual Studio Developer Environment. Or... just open Visual Studio Code and press F5 button. If you need png image support, run ``build.bat sdlimage``.
-* There are no build script for Linux yet, but it can be compiled without any changes in the source code. Just use ``gcc main.c -oout/vs -DUSE_SDL_IMAGE $(pkg-config --cflags --libs sdl2 SDL2_image) -lm``.
+* On Linux you need to run the ``build.sh`` bash script. If you need png image support, run ``build.sh sdlimage``.
 
 
 ## Notes
