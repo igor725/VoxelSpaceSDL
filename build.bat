@@ -1,8 +1,8 @@
 @echo off
 setlocal enableextensions enabledelayedexpansion
 set VOXEL_USE_SDLIMAGE=0
-set VOXEL_CFLAGS=/FC
 set VOXEL_OUT_EXE=vs.exe
+set VOXEL_CFLAGS=/FC /Isrc\ /Foout\ /Feout\%VOXEL_OUT_EXE%
 set VOXEL_INCLUDES=/ISDL2\include\
 set VOXEL_LIBS=SDL2.lib
 set VOXEL_LIBPATHS=/libpath:SDL2\lib\%VSCMD_ARG_TGT_ARCH%
@@ -27,7 +27,7 @@ IF "!VOXEL_USE_SDLIMAGE!"=="1" (
 )
 
 IF "%VOXEL_DEBUG%"=="1" (
-	set VOXEL_CFLAGS=%VOXEL_CFLAGS% /MTd /Z7
+	set VOXEL_CFLAGS=%VOXEL_CFLAGS% /MTd /Z7 /DDEBUG
 	set VOXEL_OPT=/Od
 ) else (
 	set VOXEL_CFLAGS=%VOXEL_CFLAGS% /MT
@@ -35,8 +35,8 @@ IF "%VOXEL_DEBUG%"=="1" (
 
 IF NOT EXIST out MD out
 
-cl %VOXEL_CFLAGS% %VOXEL_OPT% %VOXEL_INCLUDES% src/*.c /Isrc\ /Foout\ ^
-/Feout\%VOXEL_OUT_EXE% /link /SUBSYSTEM:CONSOLE %VOXEL_LIBPATHS% %VOXEL_LIBS%
+cl %VOXEL_CFLAGS% %VOXEL_OPT% %VOXEL_INCLUDES% src/*.c  ^
+/link /SUBSYSTEM:CONSOLE %VOXEL_LIBPATHS% %VOXEL_LIBS%
 IF %ERRORLEVEL% NEQ 0 goto error else goto allok
 
 :allok
