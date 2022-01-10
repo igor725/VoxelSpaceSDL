@@ -32,6 +32,14 @@ static int CreateSDLWindow(unsigned int flags) {
 	return 1;
 }
 
+static void CompareSDLVersions(const char *libname, const SDL_version *cv, const SDL_version *lv) {
+	if(SDL_VERSIONNUM(cv->major, cv->minor, cv->patch) != SDL_VERSIONNUM(lv->major, lv->minor, lv->patch)) {
+		SDL_LogWarn(0, "%s library version mismatch. Expected: %d.%d.%d, loaded: %d.%d.%d",
+			libname, cv->major, cv->minor, cv->patch, lv->major, lv->minor, lv->patch
+		);
+	}
+}
+
 int Engine_Start(void) {
 	SDL_SetMainReady();
 	// Инициализируем SDL
@@ -42,14 +50,15 @@ int Engine_Start(void) {
 		}
 	}
 
-	SDL_version ver;
-	SDL_GetVersion(&ver);
-	if(SDL_VERSIONNUM(ver.major, ver.minor, ver.patch) != SDL_COMPILEDVERSION) {
-		SDL_LogWarn(0, "SDL library version mismatch. Expected: %d.%d.%d, loaded: %d.%d.%d",
-			SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL,
-			ver.major, ver.minor, ver.patch
-		);
-	}
+	SDL_version cver, lver;
+	SDL_GetVersion(&lver);
+	SDL_VERSION(&cver);
+	CompareSDLVersions("SDL", &cver, &lver);
+
+#ifdef USE_SDL_IMAGE
+	SDL_IMAGE_VERSION(&cver);
+	CompareSDLVersions("SDL Image", &cver, IMG_Linked_Version());
+#endif
 
 
 	if(!CreateSDLWindow(WINDOW_FLAGS)) {
