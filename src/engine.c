@@ -42,9 +42,19 @@ int Engine_Start(void) {
 		}
 	}
 
+	SDL_version ver;
+	SDL_GetVersion(&ver);
+	if(SDL_VERSIONNUM(ver.major, ver.minor, ver.patch) != SDL_COMPILEDVERSION) {
+		SDL_LogWarn(0, "SDL library version mismatch. Expected: %d.%d.%d, loaded: %d.%d.%d",
+			SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL,
+			ver.major, ver.minor, ver.patch
+		);
+	}
+
+
 	if(!CreateSDLWindow(WINDOW_FLAGS)) {
 		SDL_LogError(0, "Failed to create SDL window: %s", SDL_GetError());
-		return 1;
+		return 2;
 	}
 
 	/*
@@ -53,7 +63,7 @@ int Engine_Start(void) {
 	*/
 	if((ctx.render = SDL_CreateRenderer(ctx.wnd, -1, RENDERER_FLAGS)) == NULL) {
 		SDL_LogError(0, "Failed to create SDL renderer: %s", SDL_GetError());
-		return 1;
+		return 3;
 	} else {
 		SDL_RendererInfo ri;
 		if(SDL_GetRendererInfo(ctx.render, &ri) == 0)
@@ -71,7 +81,7 @@ int Engine_Start(void) {
 		WINDOW_WIDTH, WINDOW_HEIGHT
 	)) == NULL) {
 		SDL_LogError(0, "Failed to create SDL texture: %s", SDL_GetError());
-		return 1;
+		return 4;
 	}
 
 	Engine_CallListeners(LISTEN_ENGINE_START, NULL);

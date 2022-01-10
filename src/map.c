@@ -68,8 +68,6 @@ int Map_Open(Map *map, const char *diffuse, const char *height) {
 	map->shift = (int)log2f(sHeight->w);
 	map->width = sHeight->w;
 	map->height = sHeight->h;
-	map->widthp = map->width - 1,
-	map->heightp = map->height - 1;
 	map->hiddeny = SDL_calloc(4, WINDOW_WIDTH);
 	map->color = SDL_calloc(4, sHeight->w * sHeight->h);
 	map->altitude = SDL_calloc(1, sHeight->w * sHeight->h);
@@ -98,7 +96,7 @@ int Map_Open(Map *map, const char *diffuse, const char *height) {
 
 unsigned char Map_GetHeight(Map *map, Point *p) {
 	if(!map->ready) return 0;
-	unsigned int offset = (((int)p->y & map->widthp) << map->shift) + ((int)p->x & map->heightp);
+	unsigned int offset = (((int)p->y & (map->width - 1)) << map->shift) + ((int)p->x & (map->height - 1));
 	return map->altitude[offset];
 }
 
@@ -134,15 +132,15 @@ void Map_Draw(Map *map, Camera *cam, SDL_Texture *screen) {
 		float deltaz = 1.0f;
 
 		for(float z = 1.0f; z < cam->distance; z += deltaz) {
-			Point pLeft = {-cosang * z - sinang * z, sinang * z - cosang * z};
-			Point pRight = {cosang * z - sinang * z, -sinang * z - cosang * z};
-			Point delta = {
+			Point pLeft = {-cosang * z - sinang * z, sinang * z - cosang * z},
+			pRight = {cosang * z - sinang * z, -sinang * z - cosang * z},
+			pDelta = {
 				(pRight.x - pLeft.x) / (float)width,
 				(pRight.y - pLeft.y) / (float)width
 			};
 			POINT_ADD(pLeft, cam->position);
 			for(int i = 0; i < width; i++) {
-				int offset = (((int)pLeft.y & map->widthp) << map->shift) + ((int)pLeft.x & map->heightp);
+				int offset = (((int)pLeft.y & (map->width - 1)) << map->shift) + ((int)pLeft.x & (map->height - 1));
 				int top = (cam->height - (float)map->altitude[offset]) / z * 240.0f + cam->horizon;
 				DrawVerticalLine(pixels, pitch, i, top, map->hiddeny[i], map->color[offset]);
 				/*
@@ -150,7 +148,7 @@ void Map_Draw(Map *map, Camera *cam, SDL_Texture *screen) {
 					накладываемых друг на друга частей линий
 				*/
 				if(top < map->hiddeny[i]) map->hiddeny[i] = (int)top;
-				POINT_ADD(pLeft, delta);
+				POINT_ADD(pLeft, pDelta);
 			}
 			deltaz += cam->zstep;
 		}

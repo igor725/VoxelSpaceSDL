@@ -42,7 +42,6 @@ int main(int argc, char *argv[]) {
 	while(Engine_Update());
 #endif
 
-	// Очищаемся
 	Engine_End();
 	return 0;
 }

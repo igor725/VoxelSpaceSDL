@@ -1,11 +1,11 @@
 #ifndef VSTYPES_H
 #define VSTYPES_H
 typedef enum eListeners {
-	LISTEN_ENGINE_START,
-	LISTEN_ENGINE_UPDATE,
-	LISTEN_ENGINE_DRAW,
-	LISTEN_SDL_WINDOW,
-	LISTEN_SDL_EVENT,
+	LISTEN_ENGINE_START, // Вызвать при запуске движка
+	LISTEN_ENGINE_UPDATE, // Вызывать каждый тик
+	LISTEN_ENGINE_DRAW, // Вызывать перед отправкой данных рендереру
+	LISTEN_SDL_WINDOW, // Вызвать при создании SDL окна
+	LISTEN_SDL_EVENT, // Вызывать при получении события от SDL
 	LISTEN_MAX
 } Listeners;
 
@@ -17,18 +17,21 @@ typedef struct sPoint {
 #define POINT_MAKE(_x, _y) {.x=_x, .y=_y}
 
 typedef struct sMap {
-	int redraw;
-	int ready, shift;
-	int width, height;
-	int widthp, heightp;
-	int *hiddeny, *color;
-	unsigned char *altitude;
+	int ready; // Была ли карта успешно загружена
+	int redraw; // Нужно ли перерисовывать карту
+	int width, height; // Размерность карты
+	int shift; // Побитовое смещение ширины карты
+	int *hiddeny; // Спрятанные линии
+	int *color; // Текстура карты
+	unsigned char *altitude; // Высоты карты
 } Map;
 
 typedef struct sCamera {
-	Point position;
-	float height, angle;
-	float distance, horizon;
-	float zstep;
+	Point position; // Текущая позиция камеры
+	float height; // Высота камеры над картой
+	float distance; // Дальность прорисовки
+	float horizon; // Уровень горизонта
+	float angle; // Угол поворота камеры
+	float zstep; // Шаг по оси Z
 } Camera;
 #endif
