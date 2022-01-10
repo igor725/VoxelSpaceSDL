@@ -2,7 +2,7 @@
 
 ## Description
 
-Comanche's Voxel Space rendering algorithm written in C using SDL. You can try it in [emscripten demo](http://igvx.ru/vs_sdl/).
+Comanche's Voxel Space rendering algorithm written in C using SDL. You can try it [here](http://igvx.ru/vs_sdl/) (browser demo).
 
 ![vs_2021-08-30_12-15-23.png](https://user-images.githubusercontent.com/40758030/131331416-0491eb7e-dcde-4857-a524-c87d94ae4a76.png)
 
@@ -44,8 +44,9 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 
 ## Notes
 
-* You can change map by dropping two images (height map and diffuse map) on the Voxel Space window.
-* The first letter in file name tells to the VoxelSpace how to use dropped file. ``D`` - use as a height map, and ``C`` - use as a diffuse map.
+* You can change map by dropping two images (height map and diffuse map) on the Voxel Space window;
+* The first letter in file name tells to the VoxelSpace how to use dropped file. ``D`` - use as a height map, and ``C`` - use as a diffuse map;
+* Also you can change default map by passing two commandline arguments to VoxelSpace: ``vs.exe path/to/diffuse.png path/to/height.png``.
 
 ## Thanks
 
