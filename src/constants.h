@@ -1,58 +1,15 @@
-#include "SDL_video.h"
-#include "SDL_render.h"
-#include "SDL_gamecontroller.h"
-
-#ifdef USE_SDL_IMAGE
-#include <SDL_image.h>
-#endif
-
-#ifndef min
-#define min(a, b) (((a)<(b))?(a):(b))
-#define max(a, b) (((a)>(b))?(a):(b))
-#endif
-
-typedef struct sPoint {
-	float x, y;
-} Point;
-
-#define POINT_ADD(a, b) (a).x += (b).x; (a).y += (b).y;
-#define POINT_MAKE(_x, _y) {.x=_x, .y=_y}
-
-struct sMap {
-	int ready, shift;
-	int width, height;
-	int widthp, heightp;
-	int *hiddeny, *color;
-	unsigned char *altitude;
-};
-
-struct sCamera {
-	Point position;
-	float height, angle;
-	float distance, horizon;
-};
-
-struct sContext {
-	float zstep;
-	int running, redrawMap;
-	int mouseGrabbed, supportControllers;
-	unsigned int lastTime, currTime;
-	int deltaTime;
-	int width, height;
-	char droppedFileType;
-	char *droppedFile;
-	SDL_Window *wnd;
-	SDL_Renderer *render;
-	SDL_Texture *screen;
-	SDL_GameController *controller;
-	struct sCamera camera;
-	struct sMap map;
-};
-
+#ifndef VSCONSTANTS_H
+#define VSCONSTANTS_H
 #define WINDOW_WIDTH 800 // Ширина SDL окна
-#define WINDOW_HEIGHT (WINDOW_WIDTH * 0.75) // Высота SDL окна
+#define WINDOW_HEIGHT ((int)(WINDOW_WIDTH * 0.75)) // Высота SDL окна
 #define SKY_COLOR 0x9090E0FF // Цвет неба в формате RGBA
 #define MOUSE_SENS 0.057f // Чувствительность мыши при управлении камерой
+#define WINDOW_FLAGS SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE // SDL флаги для создания окна
+#define RENDERER_FLAGS SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE // SDL флаги для рендерера
+
+#define INPUT_MAX_CONTROLLERS 8 // Максимально возможное количество обрабатываемых геймпадов
+#define INPUT_MAX_KEYBINDS 4 //
+
 #define CAMERA_MOVE_STEP 4.0f // Скорость передвижения камеры
 #define CAMERA_ANGLE_STEP 0.08f // Шаг вращения камеры
 #define CAMERA_HORIZON_STEP 23.0f // Шаг изменения угла наклона
@@ -67,5 +24,4 @@ struct sContext {
 #define CAMERA_ZSTEP_MIN 0.001f // Минимальный шаг по оси Z
 #define CAMERA_ZSTEP_MAX 0.24f // После этого значения изображение становится месивом из пикселей
 #define CAMERA_ZSTEP_STEP 0.001f // Название этого дефайна звучит устрашающе
-#define WINDOW_FLAGS SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE // SDL флаги для создания окна
-#define RENDERER_FLAGS SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE // SDL флаги для рендерера
+#endif

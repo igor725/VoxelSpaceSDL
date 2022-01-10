@@ -35,7 +35,7 @@ IF "%VOXEL_DEBUG%"=="1" (
 
 IF NOT EXIST out MD out
 
-cl %VOXEL_CFLAGS% %VOXEL_OPT% %VOXEL_INCLUDES% main.c /Foout\ ^
+cl %VOXEL_CFLAGS% %VOXEL_OPT% %VOXEL_INCLUDES% src/*.c /Isrc\ /Foout\ ^
 /Feout\%VOXEL_OUT_EXE% /link /SUBSYSTEM:CONSOLE %VOXEL_LIBPATHS% %VOXEL_LIBS%
 IF %ERRORLEVEL% NEQ 0 goto error else goto allok
 
