@@ -295,7 +295,7 @@ void Input_Update(void *ptr) {
 	if(isGravitationEnabled) {
 		minHeight += 8.0f;
 		if(!isOnTheGround) {
-			velocity -= (1 / delta) * INPUT_GRAVITATION_MULT;
+			velocity -= delta * INPUT_GRAVITATION_MULT * 0.001f;
 			cam->height += velocity;
 		}
 
