@@ -29,8 +29,9 @@ void Camera_Rotate(Camera *cam, float spd) {
 	cam->angle -= spd * CAMERA_ANGLE_STEP;
 }
 
-void Camera_MoveForward(Camera *cam, float spd) {
+void Camera_MoveForward(Camera *cam, float spd, int modHeight) {
 	cam->position.x += spd * CAMERA_MOVE_STEP * SDL_sinf(cam->angle);
 	cam->position.y += spd * CAMERA_MOVE_STEP * SDL_cosf(cam->angle);
-	cam->height -= spd * (cam->horizon - CAMERA_HORIZON_DEFAULT) * CAMERA_HEIGHT_MOD;
+	if(!modHeight)
+		cam->height -= spd * (cam->horizon - CAMERA_HORIZON_DEFAULT) * CAMERA_HEIGHT_MOD;
 }

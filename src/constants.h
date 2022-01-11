@@ -8,11 +8,14 @@
 #define RENDERER_FLAGS SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE // SDL флаги для рендерера
 
 #define INPUT_MAX_CONTROLLERS 8 // Максимально возможное количество обрабатываемых геймпадов
-#define INPUT_MAX_KEYBINDS 4 //
+#define INPUT_MAX_KEYBINDS 4 // Наборы клавиш, обрабатываемые движком
+#define INPUT_GRAVITATION_MULT 2.0f // Множитель гравитации
+#define INPUT_JUMP_VELOCITY 3.0f // Сила прыжка в режиме гравитации
 
 #define CAMERA_MOVE_STEP 4.0f // Скорость передвижения камеры
 #define CAMERA_ANGLE_STEP 0.08f // Шаг вращения камеры
 #define CAMERA_HORIZON_STEP 23.0f // Шаг изменения угла наклона
+#define CAMERA_HEIGHT_MAX 1000.0f // Максимальная высота камеры
 #define CAMERA_HEIGHT_STEP 4.0f // Шаг изменения высоты
 #define CAMERA_HEIGHT_MOD 0.02f // Влияние линии горизонта на вектор движения камеры
 #define CAMERA_DISTANCE_STEP 150.0f // Шаг изменения дальности прорисовки

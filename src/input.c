@@ -6,7 +6,8 @@
 static SDL_GameController *controllers[INPUT_MAX_CONTROLLERS] = {0};
 static int controllerButtonsState[SDL_CONTROLLER_BUTTON_MAX] = {0};
 static SDL_Scancode input[INPUT_MAX_KEYBINDS] = {0};
-static int isMouseGrabbed = 0;
+static int isMouseGrabbed = 0, isGravitationEnabled = 0, isOnTheGround = 0;
+static float velocity = 0.0f;
 
 static void AddController(Sint32 id) {
 	if(id < INPUT_MAX_CONTROLLERS && SDL_IsGameController(id)) {
@@ -40,6 +41,9 @@ static int ProcessControllerButtonDown(Camera *cam, SDL_GameControllerButton btn
 		case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
 			Camera_ResetPitch(cam);
 			return 1;
+		case SDL_CONTROLLER_BUTTON_BACK:
+			isGravitationEnabled = !isGravitationEnabled;
+			return 1;
 		default: break;
 	}
 
@@ -50,11 +54,18 @@ static int ProcessControllerButtonHold(Camera *cam, SDL_GameControllerButton btn
 	switch (btn) {
 		case SDL_CONTROLLER_BUTTON_DPAD_UP:
 		case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-			Camera_StrafeVert(cam, (btn == SDL_CONTROLLER_BUTTON_DPAD_UP ? dm : -dm));
+			if(!isGravitationEnabled)
+				Camera_StrafeVert(cam, (btn == SDL_CONTROLLER_BUTTON_DPAD_UP ? dm : -dm));
 			return 1;
 		case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
 		case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
 			Camera_StrafeHoriz(cam, (btn == SDL_CONTROLLER_BUTTON_DPAD_LEFT ? -dm : dm));
+			return 1;
+		case SDL_CONTROLLER_BUTTON_A:
+			if(isGravitationEnabled && isOnTheGround) {
+				velocity += INPUT_JUMP_VELOCITY;
+				isOnTheGround = 0;
+			}
 			return 1;
 
 		default: break;
@@ -83,7 +94,7 @@ static int PollController(SDL_GameController *pad, Camera *cam, float dm) {
 
 	if(SDL_fabsf(leftStick.x) > 0.15f || SDL_fabsf(leftStick.y) > 0.15f) {
 		float speedup = 1.0f + trigger.x;
-		Camera_MoveForward(cam, leftStick.y * speedup * dm);
+		Camera_MoveForward(cam, leftStick.y * speedup * dm, isGravitationEnabled);
 		Camera_StrafeHoriz(cam, leftStick.x * speedup * dm);
 		handled = 1;
 	}
@@ -95,7 +106,7 @@ static int PollController(SDL_GameController *pad, Camera *cam, float dm) {
 		handled = 1;
 	}
 
-	for(SDL_GameControllerButton i = 1; i < SDL_CONTROLLER_BUTTON_MAX; i++) {
+	for(SDL_GameControllerButton i = 0; i < SDL_CONTROLLER_BUTTON_MAX; i++) {
 		if(SDL_GameControllerGetButton(pad, i)) {
 			if(!controllerButtonsState[i]) {
 				if(ProcessControllerButtonDown(cam, i)) handled = 1;
@@ -166,6 +177,10 @@ static void ProcessKeyDown(SDL_KeyboardEvent *ev) {
 			cam->zstep = min(CAMERA_ZSTEP_MAX, (cam->zstep += CAMERA_ZSTEP_STEP));
 			map->redraw = 1;
 			break;
+		case SDL_SCANCODE_G:
+			isGravitationEnabled = !isGravitationEnabled;
+			velocity = 0.0f;
+			break;
 		case SDL_SCANCODE_ESCAPE:
 			Engine_Stop();
 			break;
@@ -198,8 +213,16 @@ static void ProcessKeyUp(SDL_Scancode code) {
 static int ProcessKeyboard(Camera *cam, float dm) {
 	if(input[3])
 		Camera_Pitch(cam, (input[3] == SDL_SCANCODE_R ? -dm : dm));
-	if(input[2])
-		Camera_StrafeVert(cam, (input[2] == SDL_SCANCODE_Q ? -dm : dm));
+	if(input[2]) {
+		if(isGravitationEnabled) {
+			if(isGravitationEnabled && isOnTheGround) {
+				velocity += INPUT_JUMP_VELOCITY;
+				isOnTheGround = 0;
+			}
+		} else
+			Camera_StrafeVert(cam, (input[2] == SDL_SCANCODE_Q ? -dm : dm));
+	}
+
 	if(input[1]) {
 		float direction = (input[1] == SDL_SCANCODE_A ? -dm : dm);
 		if(isMouseGrabbed)
@@ -208,7 +231,7 @@ static int ProcessKeyboard(Camera *cam, float dm) {
 			Camera_Rotate(cam, direction);
 	}
 	if(input[0])
-		Camera_MoveForward(cam, (input[0] == SDL_SCANCODE_W ? -dm : dm));
+		Camera_MoveForward(cam, (input[0] == SDL_SCANCODE_W ? -dm : dm), isGravitationEnabled);
 
 	/*
 		Рисуем мир заново, если была нажата
@@ -236,19 +259,40 @@ static void ProcessMouseMotion(SDL_MouseMotionEvent *motion) {
 }
 
 void Input_Update(void *ptr) {
-	float deltaMult = ((float)*(int *)ptr) * 0.03f;
+	float delta = (float)*(int *)ptr;
 	Map *map = NULL;
 	Camera *cam = NULL;
 	Engine_GetObjects(&cam, &map);
 
-	if(PollControllers(cam, deltaMult) || ProcessKeyboard(cam, deltaMult)) {
-		// Вытаскиваем камеру из-под земли, если она там и перерисовываем мир
-		float minHeight = (float)Map_GetHeight(map, &cam->position) + 10.0f;
-		cam->height = max(minHeight, min(cam->height, 1000.0f));
-		cam->horizon = max(-WINDOW_HEIGHT, min(cam->horizon, WINDOW_HEIGHT));
-		if(SDL_fabsf(cam->angle) > M_PI * 2) cam->angle = 0;
+	// Запрашиваем перерисовку мир, если была нажата какая-либо кнопка
+	if(PollControllers(cam, delta * 0.03f) || ProcessKeyboard(cam, delta * 0.03f))
 		map->redraw = 1;
-	}
+
+	float minHeight = (float)Map_GetHeight(map, &cam->position);
+	if(isGravitationEnabled) {
+		minHeight += 20.0f;
+		if(!isOnTheGround) {
+			velocity -= (1 / delta) * INPUT_GRAVITATION_MULT;
+			cam->height += velocity;
+		}
+
+		if(cam->height > minHeight) {
+			isOnTheGround = 0;
+			map->redraw = 1;
+		} else if(!isOnTheGround) {
+			cam->height = minHeight;
+			isOnTheGround = 1;
+			velocity = 0.0f;
+			map->redraw = 1;
+		}
+	} else minHeight += 10.0f;
+
+	// Вытаскиваем камеру из-под земли, если она там
+	cam->height = max(minHeight, min(cam->height, CAMERA_HEIGHT_MAX));
+	// Ограничиваем горизонт камеры размерностью окна
+	cam->horizon = max(-WINDOW_HEIGHT, min(cam->horizon, WINDOW_HEIGHT));
+	// Обнуляем угл камеры, если она прошла полный круг
+	if(SDL_fabsf(cam->angle) > M_PI * 2) cam->angle = 0;
 }
 
 void Input_Event(void *ptr) {

@@ -11,11 +11,12 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 
 ### Keyboard + Mouse
 
+* G - Toggle gravitation
 * LMB - Free look
 * ESC - Close application
 * W/S - Move camera forward/backward
 * A/D - Rotate camera or strafe (if LMB pressed)
-* E/Q - Adjust camera height
+* E/Q - Adjust camera height (Jump if gravtitation enabled)
 * R/F - Adjust camera pitch
 * J/K - Adjust details level
 * C - Reset camera pitch
@@ -25,6 +26,7 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 
 ### Game Controller
 
+* BACK - Toggle gravitation
 * LS - Move camera
 * RS - Rotate camera
 * RSB - Reset camera pitch
@@ -32,6 +34,7 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 * RT - Increase camera rotation speed
 * LB - Decrease render distance
 * RB - Increase render distance
+* A - Jump (if gravitation enabled)
 * B - Close application
 * Y - Reset render distance to default value
 * D-Pad Up/Down - Adjust camera height

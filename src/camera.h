@@ -8,5 +8,5 @@ void Camera_StrafeVert(Camera *cam, float spd);
 void Camera_Pitch(Camera *cam, float spd);
 void Camera_ResetPitch(Camera *cam);
 void Camera_Rotate(Camera *cam, float spd);
-void Camera_MoveForward(Camera *cam, float spd);
+void Camera_MoveForward(Camera *cam, float spd, int modHeight);
 #endif
