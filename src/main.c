@@ -1,3 +1,4 @@
+#include <SDL_stdinc.h>
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
 #endif
@@ -6,6 +7,13 @@
 #include "map.h"
 #include "input.h"
 #include "dragndrop.h"
+
+#ifdef _WIN32
+#include <direct.h>
+#define chdir _chdir
+#else
+#include <unistd.h>
+#endif
 
 static char *smDiffuse = NULL, *smHeight = NULL;
 
@@ -20,6 +28,13 @@ static void LoadMap(void *unused) {
 }
 
 int main(int argc, char *argv[]) {
+	char *pathend = SDL_strrchr(argv[0], '\\');
+	if(!pathend) pathend = SDL_strrchr(argv[0], '/');
+	if(pathend) {
+		*pathend = '\0';
+		chdir(argv[0]);
+	}
+	
 	if(argc > 2) {
 		smDiffuse = argv[1];
 		smHeight = argv[2];	

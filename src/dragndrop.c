@@ -1,17 +1,11 @@
 #include <SDL_events.h>
+#include <SDL_stdinc.h>
 #include <SDL_log.h>
 #include "engine.h"
 #include "map.h"
 
 char droppedFileType = 0;
 char *droppedFile = NULL;
-
-char *LastInc(const char *str, char c) {
-	const char *lastpos = NULL;
-	for(const char *p = str; *p != '\0'; p++)
-		if(*p == c) lastpos = p;
-	return (char *)lastpos;
-}
 
 void DND_Window(void *ptr) {
 	if(ptr) SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
@@ -24,8 +18,8 @@ void DND_Event(void *ptr) {
 	Map *map = NULL;
 	switch(ev->type) {
 		case SDL_DROPFILE:
-			tmpsymptr = LastInc(ev->drop.file, '\\');
-			if(!tmpsymptr) tmpsymptr = LastInc(ev->drop.file, '/');
+			tmpsymptr = SDL_strchr(ev->drop.file, '\\');
+			if(!tmpsymptr) tmpsymptr = SDL_strchr(ev->drop.file, '/');
 			typesym = tmpsymptr ? *++tmpsymptr : *ev->drop.file;
 			if(typesym == 'C' || typesym == 'c' || typesym == 'D' || typesym == 'd') {
 				if(!droppedFile) {
