@@ -1,3 +1,4 @@
+#include "SDL_stdinc.h"
 #include "constants.h"
 #include "engine.h"
 #include "camera.h"

@@ -1,3 +1,7 @@
+#include <SDL_render.h>
+#ifdef USE_SDL_IMAGE
+#include <SDL_image.h>
+#endif
 #include "constants.h"
 #include "engine.h"
 #include "camera.h"
@@ -112,11 +116,11 @@ static void DrawVerticalLine(int *pixels, int pitch, int x, int top, int bottom,
 	}
 }
 
-void Map_Draw(Map *map, Camera *cam, SDL_Texture *screen) {
+void Map_Draw(Map *map, Camera *cam, void *screen) {
 	if(!map->redraw) return;
 	int *pixels = NULL, pitch = 0, width = 0, height = 0;
-	SDL_LockTexture(screen, NULL, (void **)&pixels, &pitch);
-	SDL_QueryTexture(screen, NULL, NULL, &width, &height);
+	SDL_LockTexture((SDL_Texture *)screen, NULL, (void **)&pixels, &pitch);
+	SDL_QueryTexture((SDL_Texture *)screen, NULL, NULL, &width, &height);
 	pitch /= sizeof(int);
 
 	// Заливаем экран одним цветом
@@ -155,7 +159,7 @@ void Map_Draw(Map *map, Camera *cam, SDL_Texture *screen) {
 		}
 	}
 
-	SDL_UnlockTexture(screen);
+	SDL_UnlockTexture((SDL_Texture *)screen);
 	map->redraw = 0;
 }
 

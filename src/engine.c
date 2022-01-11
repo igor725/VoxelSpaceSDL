@@ -1,3 +1,9 @@
+// Говорим SDL, что не нужно переписывать main
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+#ifdef USE_SDL_IMAGE
+#include <SDL_image.h>
+#endif
 #include "constants.h"
 #include "engine.h"
 
@@ -146,7 +152,7 @@ int Engine_Update(void) {
 	return 1;
 }
 
-SDL_Window *Engine_GetWindow(void) {
+void *Engine_GetWindow(void) {
 	return ctx.wnd;
 }
 

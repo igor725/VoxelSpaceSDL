@@ -1,5 +1,9 @@
 #ifndef VSCONSTANTS_H
 #define VSCONSTANTS_H
+#ifndef NULL
+#define NULL (void *)0
+#endif
+
 #define GRAPHICS_WIDTH 800 // Ширина SDL окна
 #define GRAPHICS_HEIGHT ((int)(GRAPHICS_WIDTH * 0.75)) // Высота SDL окна
 #define GRAPHICS_FLAGS SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE

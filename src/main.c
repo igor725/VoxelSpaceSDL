@@ -1,7 +1,7 @@
-#include <stdio.h>
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
 #endif
+#include "constants.h"
 #include "engine.h"
 #include "input.h"
 #include "dragndrop.h"

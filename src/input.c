@@ -1,3 +1,6 @@
+#include "SDL_gamecontroller.h"
+#include "SDL_Scancode.h"
+#include "SDL_events.h"
 #include "constants.h"
 #include "engine.h"
 #include "camera.h"
