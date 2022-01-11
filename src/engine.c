@@ -6,6 +6,7 @@
 #endif
 #include "constants.h"
 #include "engine.h"
+#include "map.h"
 
 struct sContext {
 	unsigned int lastTime, currTime;

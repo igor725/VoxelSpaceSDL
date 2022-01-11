@@ -3,7 +3,7 @@ if [ "$CC" = "" ]; then
 	CC="gcc"
 fi
 CC="$CC -fdiagnostics-color=always"
-VOXEL_CFLAGS="-Isrc/ -oout/vs -lm"
+VOXEL_CFLAGS="-Isrc/ -oout/vs"
 VOXEL_LIBS=sdl2
 VOXEL_DEBUG=0
 VOXEL_OPT="-O2"

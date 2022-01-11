@@ -1,8 +1,6 @@
 #ifndef VSENGINE_H
 #define VSENGINE_H
 #include "types.h"
-#include "map.h"
-#include "camera.h"
 
 int Engine_Start(void);
 int Engine_Update(void);

@@ -3,6 +3,7 @@
 #endif
 #include "constants.h"
 #include "engine.h"
+#include "map.h"
 #include "input.h"
 #include "dragndrop.h"
 

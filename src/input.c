@@ -4,6 +4,7 @@
 #include "constants.h"
 #include "engine.h"
 #include "camera.h"
+#include "map.h"
 #include "input.h"
 
 static SDL_GameController *controllers[INPUT_MAX_CONTROLLERS] = {0};

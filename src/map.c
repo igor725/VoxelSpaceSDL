@@ -69,9 +69,9 @@ int Map_Open(Map *map, const char *diffuse, const char *height) {
 		return 0;	
 	}
 
-	map->shift = (int)log2f(sHeight->w);
 	map->width = sHeight->w;
 	map->height = sHeight->h;
+	map->shift = (int)(SDL_log10(sHeight->w) / SDL_log10(2));
 	map->hiddeny = SDL_calloc(4, GRAPHICS_WIDTH);
 	map->color = SDL_calloc(4, sHeight->w * sHeight->h);
 	map->altitude = SDL_calloc(1, sHeight->w * sHeight->h);
@@ -146,7 +146,7 @@ void Map_Draw(Map *map, Camera *cam, void *screen) {
 			POINT_ADD(pLeft, cam->position);
 			for(int i = 0; i < width; i++) {
 				int offset = (((int)pLeft.y & (map->width - 1)) << map->shift) + ((int)pLeft.x & (map->height - 1));
-				int top = (cam->height - (float)map->altitude[offset]) / z * 240.0f + cam->horizon;
+				int top = (int)((cam->height - (float)map->altitude[offset]) / z * 240.0f + cam->horizon);
 				DrawVerticalLine(pixels, pitch, i, top, map->hiddeny[i], map->color[offset]);
 				/*
 					Слегка ускоряем рендер путём скрытия
