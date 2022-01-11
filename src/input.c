@@ -120,6 +120,23 @@ static int PollController(SDL_GameController *pad, Camera *cam, float dm) {
 		}
 	}
 
+	if(SDL_GameControllerGetNumTouchpads(pad) > 0) {
+		Uint8 state = 0;
+		static float ox = 0.0f, oy = 0.0f;
+		float x = 0.0f, y = 0.0f, dx = 0.0f, dy = 0.0f;
+		if(SDL_GameControllerGetTouchpadFinger(pad, 0, 0, &state, &x, &y, NULL) == 0) {
+			if(state == 1) {
+				if(ox == 0.0f && oy == 0.0f)
+					ox = x, oy = y;
+				dx = x - ox, dy = y - oy;
+				Camera_Rotate(cam, dx * dm * INPUT_TOUCH_SENS);
+				Camera_Pitch(cam, dy * dm * INPUT_TOUCH_SENS);
+				ox = x, oy = y;
+				handled = 1;
+			} else ox = 0.0f, oy = 0.0f;
+		}
+	}
+
 	return handled;
 }
 
@@ -253,7 +270,7 @@ static void ProcessMouseMotion(SDL_MouseMotionEvent *motion) {
 	Map *map = NULL;
 	Camera *cam = NULL;
 	Engine_GetObjects(&cam, &map);
-	cam->angle -= (float)motion->xrel * (MOUSE_SENS / (float)Engine_GetDeltaTime());
+	cam->angle -= (float)motion->xrel * (INPUT_MOUSE_SENS / (float)Engine_GetDeltaTime());
 	cam->horizon -= (float)motion->yrel;
 	map->redraw = 1;
 }
@@ -270,7 +287,7 @@ void Input_Update(void *ptr) {
 
 	float minHeight = (float)Map_GetHeight(map, &cam->position);
 	if(isGravitationEnabled) {
-		minHeight += 20.0f;
+		minHeight += 8.0f;
 		if(!isOnTheGround) {
 			velocity -= (1 / delta) * INPUT_GRAVITATION_MULT;
 			cam->height += velocity;
@@ -285,12 +302,12 @@ void Input_Update(void *ptr) {
 			velocity = 0.0f;
 			map->redraw = 1;
 		}
-	} else minHeight += 10.0f;
+	} else minHeight += 2.0f;
 
 	// Вытаскиваем камеру из-под земли, если она там
 	cam->height = max(minHeight, min(cam->height, CAMERA_HEIGHT_MAX));
 	// Ограничиваем горизонт камеры размерностью окна
-	cam->horizon = max(-WINDOW_HEIGHT, min(cam->horizon, WINDOW_HEIGHT));
+	cam->horizon = max(-GRAPHICS_HEIGHT, min(cam->horizon, GRAPHICS_HEIGHT));
 	// Обнуляем угл камеры, если она прошла полный круг
 	if(SDL_fabsf(cam->angle) > M_PI * 2) cam->angle = 0;
 }

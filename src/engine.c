@@ -26,7 +26,7 @@ struct sContext {
 static int CreateSDLWindow(unsigned int flags) {
 	if((ctx.wnd = SDL_CreateWindow("VoxelSpace SDL",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		WINDOW_WIDTH, WINDOW_HEIGHT, flags
+		GRAPHICS_WIDTH, GRAPHICS_HEIGHT, flags
 	)) == NULL) return 0;
 	Engine_CallListeners(LISTEN_SDL_WINDOW, ctx.wnd);
 	return 1;
@@ -61,7 +61,7 @@ int Engine_Start(void) {
 #endif
 
 
-	if(!CreateSDLWindow(WINDOW_FLAGS)) {
+	if(!CreateSDLWindow(SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE)) {
 		SDL_LogError(0, "Failed to create SDL window: %s", SDL_GetError());
 		return 2;
 	}
@@ -70,7 +70,7 @@ int Engine_Start(void) {
 		Ищем у пользователя рендерер, подходящий
 		под наши рендерерские запросы.
 	*/
-	if((ctx.render = SDL_CreateRenderer(ctx.wnd, -1, RENDERER_FLAGS)) == NULL) {
+	if((ctx.render = SDL_CreateRenderer(ctx.wnd, -1, GRAPHICS_FLAGS)) == NULL) {
 		SDL_LogError(0, "Failed to create SDL renderer: %s", SDL_GetError());
 		return 3;
 	} else {
@@ -87,7 +87,7 @@ int Engine_Start(void) {
 	*/
 	if((ctx.screen = SDL_CreateTexture(ctx.render,
 		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-		WINDOW_WIDTH, WINDOW_HEIGHT
+		GRAPHICS_WIDTH, GRAPHICS_HEIGHT
 	)) == NULL) {
 		SDL_LogError(0, "Failed to create SDL texture: %s", SDL_GetError());
 		return 4;

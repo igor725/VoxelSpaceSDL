@@ -38,6 +38,7 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 * B - Close application
 * Y - Reset render distance to default value
 * D-Pad Up/Down - Adjust camera height
+* Touchpad - Look around
 
 ## Building
 
