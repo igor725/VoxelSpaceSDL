@@ -1,4 +1,5 @@
 #include <SDL_render.h>
+#include <SDL_log.h>
 #ifdef USE_SDL_IMAGE
 #include <SDL_image.h>
 #endif

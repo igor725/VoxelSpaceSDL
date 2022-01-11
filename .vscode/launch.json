@@ -2,6 +2,17 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "VoxelSpace Linux",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/out/vs",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}/out",
+			"console": "integratedTerminal",
+			"preLaunchTask": "Build VoxelSpace"
+		},
+		{
 			"name": "VoxelSpace",
 			"type": "cppvsdbg",
 			"request": "launch",

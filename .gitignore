@@ -3,3 +3,4 @@ out/*
 SDL2*
 *.tar.gz
 .vscode/settings.json
+.vscode/c_cpp_properties.json

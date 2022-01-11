@@ -1,5 +1,7 @@
 #include <SDL_events.h>
+#include <SDL_log.h>
 #include "engine.h"
+#include "map.h"
 
 char droppedFileType = 0;
 char *droppedFile = NULL;

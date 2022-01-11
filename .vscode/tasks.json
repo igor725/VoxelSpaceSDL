@@ -4,11 +4,21 @@
 		{
 			"type": "shell",
 			"label": "Build VoxelSpace",
-			"command": ".\\build.bat",
-			"args": ["dbg", "sdlimage"],
-			"problemMatcher": [
-				"$msCompile"
-			],
+			"linux": {
+				"command": "./build.sh",
+				"args": ["dbg", "sdlimage"],
+				"problemMatcher": [
+					"$gcc"
+				]
+			},
+			"windows": {
+				"command": ".\\build.bat",
+				"args": ["dbg", "sdlimage"],
+				"problemMatcher": [
+					"$msCompile"
+				],
+				"detail": "compiler: cl.exe"
+			},
 			"presentation": {
 				"echo": false,
 				"reveal": "silent",
@@ -22,8 +32,7 @@
 			"group": {
 				"kind": "build",
 				"isDefault": true
-			},
-			"detail": "compiler: cl.exe"
+			}
 		}
 	]
 }
