@@ -40,7 +40,7 @@ void DND_Event(void *ptr) {
 
 					Errors ret;
 					if((ret = Map_Open(map, diffuse, height)) != ERROR_OK)
-						SDL_LogError(0, Errors_Strings[ret]);
+						SDL_LogError(0, "Failed to load map: %s", Errors_Strings[ret]);
 					SDL_free(ev->drop.file);
 					SDL_free(droppedFile);
 					droppedFile = NULL;

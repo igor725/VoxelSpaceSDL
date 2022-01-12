@@ -46,7 +46,7 @@ int Map_Open(Map *map, const char *diffuse, const char *height) {
 #endif
 
 	if(sDiffuse == NULL || sHeight == NULL)
-		return ERROR_MAPLOAD_LOAD;
+		return ERROR_MAPLOAD_FILE;
 
 	if((sDiffuse->w != sDiffuse->h) || (sHeight->w != sHeight->h))
 		return ERROR_MAPLOAD_IMGSIZE;

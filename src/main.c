@@ -29,7 +29,7 @@ static void LoadMap(void *unused) {
 
 	Errors ret;
 	if((ret = Map_Open(map, smDiffuse, smHeight)) != ERROR_OK)
-		SDL_LogError(0, Errors_Strings[ret]);
+		SDL_LogError(0, "Failed to load map: %s", Errors_Strings[ret]);
 }
 
 static void AddController(void *ptr) {
@@ -49,7 +49,8 @@ int main(int argc, char *argv[]) {
 	if(!pathend) pathend = SDL_strrchr(argv[0], '/');
 	if(pathend) {
 		*pathend = '\0';
-		chdir(argv[0]);
+		if(chdir(argv[0]) == -1)
+			SDL_LogWarn(0, "Failed to change directory");
 	}
 	
 	if(argc > 2) {
