@@ -3,13 +3,18 @@
 #include <SDL_gamecontroller.h>
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
+#else
+/*
+	На данный момент drag'n'drop в emscripten не поддерживается,
+	соответственно и подключать его нет особой нужды.
+*/
+#include "dragndrop.h"
 #endif
 #include "types.h"
 #include "constants.h"
 #include "engine.h"
 #include "map.h"
 #include "input.h"
-#include "dragndrop.h"
 
 #ifdef _WIN32
 #include <direct.h>
@@ -60,9 +65,11 @@ int main(int argc, char *argv[]) {
 
 	Engine_AddListener(LISTEN_ENGINE_START, LoadMap);
 	Engine_AddListener(LISTEN_ENGINE_UPDATE, Input_Update);
+	Engine_AddListener(LISTEN_SDL_EVENT, Input_Event);
+#ifndef EMSCRIPTEN
 	Engine_AddListener(LISTEN_SDL_WINDOW, DND_Window);
 	Engine_AddListener(LISTEN_SDL_EVENT, DND_Event);
-	Engine_AddListener(LISTEN_SDL_EVENT, Input_Event);
+#endif
 	Engine_AddListener(LISTEN_CONTROLLER_ADD, AddController);
 	Engine_AddListener(LISTEN_CONTROLLER_FAIL, FailController);
 	Engine_AddListener(LISTEN_CONTROLLER_DEL, RemoveController);
@@ -73,7 +80,7 @@ int main(int argc, char *argv[]) {
 	}
 
 #ifdef EMSCRIPTEN
-	emscripten_set_main_loop_arg((em_arg_callback_func)Engine_Update, NULL, 0, 1);
+	emscripten_set_main_loop((em_callback_func)Engine_Update, 0, 1);
 #else
 	while(Engine_Update());
 #endif

@@ -177,6 +177,7 @@ static void ProcessKeyDown(SDL_Scancode code, Uint16 mod) {
 			input[3] = code;
 			break;
 		case SDL_SCANCODE_SPACE:
+			map->redraw = 1;
 			if(mod & KMOD_CTRL)
 				Camera_AdjustDistance(cam, CAMERA_DISTANCE_DEFAULT - cam->distance);
 			else

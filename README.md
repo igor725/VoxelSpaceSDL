@@ -2,7 +2,7 @@
 
 ## Description
 
-Comanche's Voxel Space rendering algorithm written in C using SDL. You can try it [here](http://igvx.ru/vs_sdl/) (browser demo).
+Comanche's Voxel Space rendering algorithm written in C using SDL. You can try it [here](https://igvx.ru/vs_sdl/) (browser demo).
 
 ![vs_2021-08-30_12-15-23.png](https://user-images.githubusercontent.com/40758030/131331416-0491eb7e-dcde-4857-a524-c87d94ae4a76.png)
 
@@ -43,8 +43,8 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 ## Building
 
 * On Windows you need to run the ``build.bat`` batch script in Visual Studio Developer Environment. Or... just open Visual Studio Code and press F5 button. If you need png image support, run ``build.bat sdlimage``.
-* On Linux you need to run the ``build.sh`` bash script. If you need png image support, run ``build.sh sdlimage``.
-
+* On Linux you need to run the ``build.sh`` bash script. If you need png image support, run ``build.sh sdlimage``;
+* Bot scripts can build VoxelSpace for browsers using [emscripten](https://emscripten.org/): ``build.bat web run``.
 
 ## Notes
 
@@ -58,4 +58,4 @@ Thanks to [s-macke](https://github.com/s-macke/VoxelSpace/) for the inspiration 
 
 ## License
 
-The software part of the repository is under the MIT license. Please read the license file for more information. Please keep in mind, that the Voxel Space technology might be still patented in some countries. The color and height maps are reverse engineered from the game Comanche and are therefore excluded from the license.
+The software part of the repository is under the MIT license. Please read the license file for more information. Please keep in mind, that the Voxel Space technology might be still [patented](https://patents.justia.com/assignee/novalogic-inc) in some countries. The color and height maps are reverse engineered from the game Comanche and are therefore excluded from the license.

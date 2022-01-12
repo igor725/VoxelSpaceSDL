@@ -38,6 +38,9 @@ if [ $VOXEL_EMSCRIPTEN -eq 1 ]; then
 	VOXEL_CFLAGS="$VOXEL_CFLAGS -s ALLOW_MEMORY_GROWTH=1";
 	VOXEL_CFLAGS="$VOXEL_CFLAGS --preload-file out/maps/C1W.bmp@maps/C1W.bmp";
 	VOXEL_CFLAGS="$VOXEL_CFLAGS --preload-file out/maps/D1.bmp@maps/D1.bmp";
+	if [ $VOXEL_RUN -eq 1 ]; then
+		VOXEL_CFLAGS="$VOXEL_CFLAGS --emrun";
+	fi
 else
 	VOXEL_CFLAGS="$VOXEL_CFLAGS $(pkg-config --cflags --libs $VOXEL_LIBS)";
 fi
@@ -46,7 +49,7 @@ $CC $VOXEL_SOURCES $VOXEL_OPT -o$VOXEL_OUTDIR/$VOXEL_OUTFILE $VOXEL_CFLAGS
 
 if [ $VOXEL_RUN -eq 1 ]; then
 	if [ $VOXEL_EMSCRIPTEN -eq 1 ]; then
-		emrun --silence_timeout 4 "$VOXEL_OUTDIR/$VOXEL_OUTFILE";
+		emrun "$VOXEL_OUTDIR/$VOXEL_OUTFILE";
 	else
 		exec "$VOXEL_OUTDIR/$VOXEL_OUTFILE";
 	fi
