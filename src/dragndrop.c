@@ -14,6 +14,7 @@ void DND_Window(void *ptr) {
 void DND_Event(void *ptr) {
 	SDL_Event *ev = (SDL_Event *)ptr;
 	char *tmpsymptr = NULL, typesym = 0;
+	const char *diffuse = NULL, *height = NULL;
 	Camera *cam = NULL;
 	Map *map = NULL;
 	switch(ev->type) {
@@ -33,9 +34,13 @@ void DND_Event(void *ptr) {
 					Engine_GetObjects(&cam, &map);
 					Map_Close(map);
 					if(typesym == 'C' || typesym == 'c')
-						Map_Open(map, ev->drop.file, droppedFile);
+						diffuse = ev->drop.file, height = droppedFile;
 					else
-						Map_Open(map, droppedFile, ev->drop.file);
+						diffuse = droppedFile, height = ev->drop.file;
+
+					Errors ret;
+					if((ret = Map_Open(map, diffuse, height)) != ERROR_OK)
+						SDL_LogError(0, Errors_Strings[ret]);
 					SDL_free(ev->drop.file);
 					SDL_free(droppedFile);
 					droppedFile = NULL;

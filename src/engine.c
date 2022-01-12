@@ -44,7 +44,7 @@ static void CompareSDLVersions(const char *libname, const SDL_version *cv, const
 		SDL_LogWarn(0, "%s library version mismatch. Expected: %d.%d.%d, loaded: %d.%d.%d",
 			libname, cv->major, cv->minor, cv->patch, lv->major, lv->minor, lv->patch
 		);
-	}
+	} else SDL_Log("%s library version: %d.%d.%d", libname, cv->major, cv->minor, cv->patch);
 }
 
 int Engine_Start(void) {

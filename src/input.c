@@ -20,14 +20,14 @@ static void AddController(Sint32 id) {
 		SDL_GameController *controller = SDL_GameControllerOpen(id);
 		if(controller) {
 			controllers[id] = controller;
-			SDL_Log("Found controller: %s", SDL_GameControllerName(controller));
-		} else SDL_Log("Failed to open controller #%d: %s", id, SDL_GetError());
+			Engine_CallListeners(LISTEN_CONTROLLER_ADD, controller);
+		} else Engine_CallListeners(LISTEN_CONTROLLER_FAIL, &id);
 	}
 }
 
 static void RemoveController(Sint32 id) {
 	if(id < INPUT_MAX_CONTROLLERS && controllers[id]) {
-		SDL_Log("Controller %d disconnected", id);
+		Engine_CallListeners(LISTEN_CONTROLLER_DEL, controllers[id]);
 		SDL_GameControllerClose(controllers[id]);
 	}
 }
@@ -118,12 +118,7 @@ static int PollController(SDL_GameController *pad, Camera *cam, float dm) {
 				if(ProcessControllerButtonDown(cam, i)) handled = 1;
 				controllerButtonsState[i] = 1;
 			} else if(ProcessControllerButtonHold(cam, i, dm)) handled = 1;
-		} else {
-			if(controllerButtonsState[i]) {
-				// ProcessControllerButtonUp(i);
-				controllerButtonsState[i] = 0;
-			}
-		}
+		} else if(controllerButtonsState[i]) controllerButtonsState[i] = 0;
 	}
 
 	if(SDL_GameControllerGetNumTouchpads(pad) > 0) {
@@ -160,11 +155,10 @@ static int PollControllers(Camera *cam, float dm) {
 #define max(a, b) (((a)>(b))?(a):(b))
 #endif
 
-static void ProcessKeyDown(SDL_KeyboardEvent *ev) {
+static void ProcessKeyDown(SDL_Scancode code, Uint16 mod) {
 	Camera *cam = NULL;
 	Map *map = NULL;
 	Engine_GetObjects(&cam, &map);
-	SDL_Scancode code = ev->keysym.scancode;
 	switch(code) {
 		case SDL_SCANCODE_W:
 		case SDL_SCANCODE_S:
@@ -183,10 +177,10 @@ static void ProcessKeyDown(SDL_KeyboardEvent *ev) {
 			input[3] = code;
 			break;
 		case SDL_SCANCODE_SPACE:
-			if(ev->keysym.mod & KMOD_CTRL)
+			if(mod & KMOD_CTRL)
 				Camera_AdjustDistance(cam, CAMERA_DISTANCE_DEFAULT - cam->distance);
 			else
-				Camera_AdjustDistance(cam, ev->keysym.mod & KMOD_SHIFT ? -CAMERA_DISTANCE_STEP : CAMERA_DISTANCE_STEP);
+				Camera_AdjustDistance(cam, mod & KMOD_SHIFT ? -CAMERA_DISTANCE_STEP : CAMERA_DISTANCE_STEP);
 			break;
 		case SDL_SCANCODE_C:
 			Camera_ResetPitch(cam);
@@ -328,7 +322,7 @@ void Input_Event(void *ptr) {
 			RemoveController(ev->cdevice.which);
 			break;
 		case SDL_KEYDOWN:
-			ProcessKeyDown(&ev->key);
+			ProcessKeyDown(ev->key.keysym.scancode, ev->key.keysym.mod);
 			break;
 		case SDL_KEYUP:
 			ProcessKeyUp(ev->key.keysym.scancode);

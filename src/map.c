@@ -26,7 +26,7 @@ static SDL_Surface *ScaleSurface(SDL_Surface *old, int side) {
 		return NULL;
 
 	SDL_Rect rct = {.w = side, .h = side};
-	if(SDL_UpperBlitScaled(old, NULL, new, &rct) != 0)
+	if(SDL_BlitScaled(old, NULL, new, &rct) != 0)
 		return NULL;
 	SDL_FreeSurface(old);
 	
@@ -45,30 +45,20 @@ int Map_Open(Map *map, const char *diffuse, const char *height) {
 	sHeight = ReencodeSurface(IMG_Load(height));
 #endif
 
-	if(sDiffuse == NULL || sHeight == NULL) {
-		SDL_LogError(0, "Failed to open image: %s", SDL_GetError());
-		return 0;
-	}
+	if(sDiffuse == NULL || sHeight == NULL)
+		return ERROR_MAPLOAD_LOAD;
 
-	if((sDiffuse->w != sDiffuse->h) || (sHeight->w != sHeight->h)) {
-		SDL_LogError(0, "Failed to process image: Image must be a square");
-		return 0;
-	}
+	if((sDiffuse->w != sDiffuse->h) || (sHeight->w != sHeight->h))
+		return ERROR_MAPLOAD_IMGSIZE;
 
-	if((sHeight->w & (sHeight->w - 1)) != 0) {
-		SDL_LogError(0, "Failed to process image: Image width must be power of two");
-		return 0;
-	}
+	if((sHeight->w & (sHeight->w - 1)) != 0)
+		return ERROR_MAPLOAD_WIDTHINVALID;
 
 	if(sHeight->w < sDiffuse->w) {
-		if((sHeight = ScaleSurface(sHeight, sDiffuse->w)) == NULL) {
-			SDL_LogError(0, "Image scaling failed: %s", SDL_GetError());
-			return 0;
-		}
-	} else if(sDiffuse->w < sHeight->w) {
-		SDL_LogError(0, "Height map bigger than diffuse image");
-		return 0;	
-	}
+		if((sHeight = ScaleSurface(sHeight, sDiffuse->w)) == NULL)
+			return ERROR_MAPLOAD_SCALE;
+	} else if(sDiffuse->w < sHeight->w)
+		return ERROR_MAPLOAD_MAPSMISMATCH;
 
 	map->width = sHeight->w;
 	map->height = sHeight->h;
@@ -76,10 +66,8 @@ int Map_Open(Map *map, const char *diffuse, const char *height) {
 	map->hiddeny = SDL_calloc(4, GRAPHICS_WIDTH);
 	map->color = SDL_calloc(4, sHeight->w * sHeight->h);
 	map->altitude = SDL_calloc(1, sHeight->w * sHeight->h);
-	if(!map->hiddeny || !map->color || !map->altitude) {
-		SDL_LogError(0, "Memory allocation failed");
-		return 0;
-	}
+	if(!map->hiddeny || !map->color || !map->altitude)
+		return ERROR_MALLOC_FAIL;
 
 	const unsigned char *datah = sHeight->pixels;
 	unsigned int *datac = sDiffuse->pixels;
@@ -96,7 +84,7 @@ int Map_Open(Map *map, const char *diffuse, const char *height) {
 	SDL_FreeSurface(sDiffuse);
 	SDL_FreeSurface(sHeight);
 	map->ready = 1;
-	return 1;
+	return ERROR_OK;
 }
 
 unsigned char Map_GetHeight(Map *map, Point *p) {
