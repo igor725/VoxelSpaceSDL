@@ -10,7 +10,7 @@
 
 #define INPUT_MOUSE_SENS 0.057f // Чувствительность мыши при управлении камерой
 #define INPUT_TOUCH_SENS 30.0f // Чувствительность тач панели геймпада
-#define INPUT_MAX_CONTROLLERS 8 // Максимально возможное количество обрабатываемых геймпадов
+#define INPUT_MAX_PADS 8 // Максимально возможное количество обрабатываемых геймпадов
 #define INPUT_MAX_KEYBINDS 4 // Наборы клавиш, обрабатываемые движком
 #define INPUT_GRAVITATION_MULT 9.81f // Множитель гравитации
 #define INPUT_JUMP_VELOCITY 3.0f // Сила прыжка в режиме гравитации

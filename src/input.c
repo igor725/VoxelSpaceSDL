@@ -9,26 +9,26 @@
 #include "map.h"
 #include "input.h"
 
-static SDL_GameController *controllers[INPUT_MAX_CONTROLLERS] = {0};
-static int controllerButtonsState[SDL_CONTROLLER_BUTTON_MAX] = {0};
+static SDL_GameController *pads[INPUT_MAX_PADS] = {0};
+static int padButtonState[SDL_CONTROLLER_BUTTON_MAX] = {0};
 static SDL_Scancode input[INPUT_MAX_KEYBINDS] = {0};
 static int isMouseGrabbed = 0, isGravitationEnabled = 0, isOnTheGround = 0;
 static float velocity = 0.0f;
 
-static void AddController(Sint32 id) {
-	if(id < INPUT_MAX_CONTROLLERS && SDL_IsGameController(id)) {
-		SDL_GameController *controller = SDL_GameControllerOpen(id);
-		if(controller) {
-			controllers[id] = controller;
-			Engine_CallListeners(LISTEN_CONTROLLER_ADD, controller);
+static inline void AddController(Sint32 id) {
+	if(id < INPUT_MAX_PADS && SDL_IsGameController(id)) {
+		SDL_GameController *pad = SDL_GameControllerOpen(id);
+		if(pad) {
+			pads[id] = pad;
+			Engine_CallListeners(LISTEN_CONTROLLER_ADD, pad);
 		} else Engine_CallListeners(LISTEN_CONTROLLER_FAIL, &id);
 	}
 }
 
-static void RemoveController(Sint32 id) {
-	if(id < INPUT_MAX_CONTROLLERS && controllers[id]) {
-		Engine_CallListeners(LISTEN_CONTROLLER_DEL, controllers[id]);
-		SDL_GameControllerClose(controllers[id]);
+static inline void RemoveController(Sint32 id) {
+	if(id < INPUT_MAX_PADS && pads[id]) {
+		Engine_CallListeners(LISTEN_CONTROLLER_DEL, pads[id]);
+		SDL_GameControllerClose(pads[id]);
 	}
 }
 
@@ -114,11 +114,11 @@ static int PollController(SDL_GameController *pad, Camera *cam, float dm) {
 
 	for(SDL_GameControllerButton i = 0; i < SDL_CONTROLLER_BUTTON_MAX; i++) {
 		if(SDL_GameControllerGetButton(pad, i)) {
-			if(!controllerButtonsState[i]) {
+			if(!padButtonState[i]) {
 				if(ProcessControllerButtonDown(cam, i)) handled = 1;
-				controllerButtonsState[i] = 1;
+				padButtonState[i] = 1;
 			} else if(ProcessControllerButtonHold(cam, i, dm)) handled = 1;
-		} else if(controllerButtonsState[i]) controllerButtonsState[i] = 0;
+		} else if(padButtonState[i]) padButtonState[i] = 0;
 	}
 
 	if(SDL_GameControllerGetNumTouchpads(pad) > 0) {
@@ -142,8 +142,8 @@ static int PollController(SDL_GameController *pad, Camera *cam, float dm) {
 }
 
 static int PollControllers(Camera *cam, float dm) {
-	for(Sint32 id = 0; id < INPUT_MAX_CONTROLLERS; id++) {
-		SDL_GameController *pad = controllers[id];
+	for(Sint32 id = 0; id < INPUT_MAX_PADS; id++) {
+		SDL_GameController *pad = pads[id];
 		if(pad && PollController(pad, cam, dm)) return 1;
 	}
 
@@ -261,7 +261,7 @@ static int ProcessKeyboard(Camera *cam, float dm) {
 	return 0;
 }
 
-static void ToggleMouseGrab(void) {
+static inline void ToggleMouseGrab(void) {
 	isMouseGrabbed = !isMouseGrabbed;
 	SDL_SetRelativeMouseMode(isMouseGrabbed);
 	SDL_SetWindowGrab(Engine_GetWindow(), isMouseGrabbed);

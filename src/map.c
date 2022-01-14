@@ -87,13 +87,7 @@ int Map_Open(Map *map, const char *diffuse, const char *height) {
 	return ERROR_OK;
 }
 
-unsigned char Map_GetHeight(Map *map, Point *p) {
-	if(!map->ready) return 0;
-	unsigned int offset = (((int)p->y & (map->width - 1)) << map->shift) + ((int)p->x & (map->height - 1));
-	return map->altitude[offset];
-}
-
-static void DrawVerticalLine(int *pixels, int pitch, int x, int top, int bottom, int color) {
+static inline void DrawVerticalLine(int *pixels, int pitch, int x, int top, int bottom, int color) {
 	// Линия за пределами окна? Низя такое.
 	if(top < 0) top = 0;
 	if(top > bottom) return;
