@@ -27,10 +27,12 @@ static SDL_Surface *ScaleSurface(SDL_Surface *old, int side) {
 		return NULL;
 
 	SDL_Rect rct = {.w = side, .h = side};
-	if(SDL_BlitScaled(old, NULL, new, &rct) != 0)
+	if(SDL_BlitScaled(old, NULL, new, &rct) != 0) {
+		SDL_FreeSurface(new);
 		return NULL;
-	SDL_FreeSurface(old);
+	}
 	
+	SDL_FreeSurface(old);
 	return new;
 }
 

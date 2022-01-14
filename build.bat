@@ -36,7 +36,7 @@ IF "%VOXEL_EMSCRIPTEN%"=="1" (
 FOR /F "tokens=* USEBACKQ" %%F IN (`dir /b /a-d src\*.c`) DO (
 	set VOXEL_SOURCES=!VOXEL_SOURCES!src\%%F 
 )
-set VOXEL_SOURCES=%VOXEL_SOURCES% src/modules/dragndrop.c
+set VOXEL_SOURCES=%VOXEL_SOURCES% src\modules\dragndrop.c
 
 IF NOT EXIST %VOXEL_OUTDIR% MD !VOXEL_OUTDIR!
 set VOXEL_CFLAGS=/FC /Isrc\ /Fo%VOXEL_OUTDIR%\ /Fe%VOXEL_OUTDIR%\%VOXEL_OUTFILE% /ISDL2\include\

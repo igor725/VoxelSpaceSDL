@@ -21,8 +21,8 @@ void DND_Event(void *ptr) {
 	Map *map = NULL;
 	switch(ev->type) {
 		case SDL_DROPFILE:
-			tmpsymptr = SDL_strchr(ev->drop.file, '\\');
-			if(!tmpsymptr) tmpsymptr = SDL_strchr(ev->drop.file, '/');
+			tmpsymptr = SDL_strrchr(ev->drop.file, '\\');
+			if(!tmpsymptr) tmpsymptr = SDL_strrchr(ev->drop.file, '/');
 			typesym = tmpsymptr ? *++tmpsymptr : *ev->drop.file;
 			if(typesym == 'C' || typesym == 'c' || typesym == 'D' || typesym == 'd') {
 				if(!droppedFile) {
