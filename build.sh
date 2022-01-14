@@ -7,7 +7,6 @@ VOXEL_OUTDIR="out";
 VOXEL_OUTFILE="vs";
 VOXEL_CFLAGS="-Isrc/";
 VOXEL_SDLIMAGE=0;
-VOXEL_SOURCES=$(find src/ -name *.c -exec echo -n {} +);
 VOXEL_EMSCRIPTEN=0;
 VOXEL_LIBS=sdl2;
 VOXEL_OPT="-O2";
@@ -50,8 +49,10 @@ if [ $VOXEL_EMSCRIPTEN -eq 1 ]; then
 	VOXEL_CFLAGS="$VOXEL_CFLAGS --preload-file out/maps/C1W.bmp@maps/C1W.bmp";
 	VOXEL_CFLAGS="$VOXEL_CFLAGS --preload-file out/maps/D1.bmp@maps/D1.bmp";
 	if [ $VOXEL_RUN -eq 1 ]; then VOXEL_CFLAGS="$VOXEL_CFLAGS --emrun"; fi
+	VOXEL_SOURCES=$(find src/ -type f \( -iname "*.c" ! -iname "dragndrop.c" \) -exec echo -n {} +);
 else
 	VOXEL_CFLAGS="$VOXEL_CFLAGS $(pkg-config --cflags --libs $VOXEL_LIBS)";
+	VOXEL_SOURCES=$(find src/ -type f -name *.c -exec echo -n {} +);
 fi
 
 $CC $VOXEL_SOURCES $VOXEL_OPT -o$VOXEL_OUTDIR/$VOXEL_OUTFILE $VOXEL_CFLAGS;
