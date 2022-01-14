@@ -291,7 +291,7 @@ void Input_Update(void *ptr) {
 
 	float minHeight = (float)Map_GetHeight(map, &cam->position);
 	if(isGravitationEnabled) {
-		minHeight += 8.0f;
+		minHeight += 9.0f;
 		if(!isOnTheGround) {
 			velocity -= delta * INPUT_GRAVITATION_MULT * 0.001f;
 			cam->height += velocity;

@@ -31,8 +31,6 @@ void Overlay_Update(void *ptr) {
 		tsurf = TTF_RenderText_Blended(font, SDL_itoa(1000 / delta, buffer, 10), fgcolor);
 		txtrect.w = tsurf->w;
 		txtrect.h = tsurf->h;
-		txtrect.x = 0;
-		txtrect.y = 0;
 		fpstimer = 0;
 	}
 }

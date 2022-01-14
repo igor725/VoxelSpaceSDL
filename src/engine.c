@@ -156,6 +156,7 @@ int Engine_Update(void) {
 	ctx.lastTime = ctx.currTime;
 	ctx.currTime = SDL_GetTicks();
 	ctx.deltaTime = ctx.currTime - ctx.lastTime;
+	if(ctx.deltaTime > 1000) ctx.deltaTime = 0;
 	return 1;
 }
 
