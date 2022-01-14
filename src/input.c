@@ -1,9 +1,9 @@
 #include <SDL_gamecontroller.h>
 #include <SDL_scancode.h>
 #include <SDL_events.h>
+#include <SDL_stdinc.h>
 #include <SDL_log.h>
 #include "constants.h"
-#include "types.h"
 #include "engine.h"
 #include "camera.h"
 #include "map.h"
@@ -100,6 +100,7 @@ static int PollController(SDL_GameController *pad, Camera *cam, float dm) {
 
 	if(SDL_fabsf(leftStick.x) > 0.15f || SDL_fabsf(leftStick.y) > 0.15f) {
 		float speedup = 1.0f + trigger.x;
+		if(isGravitationEnabled) speedup /= 3.0f;
 		Camera_MoveForward(cam, leftStick.y * speedup * dm, isGravitationEnabled);
 		Camera_StrafeHoriz(cam, leftStick.x * speedup * dm);
 		handled = 1;
@@ -248,8 +249,10 @@ static int ProcessKeyboard(Camera *cam, float dm) {
 		else
 			Camera_Rotate(cam, direction);
 	}
-	if(input[0])
-		Camera_MoveForward(cam, (input[0] == SDL_SCANCODE_W ? -dm : dm), isGravitationEnabled);
+	if(input[0]) {
+		float speedMod = isGravitationEnabled ? 2.5 : 1.0;
+		Camera_MoveForward(cam, (input[0] == SDL_SCANCODE_W ? -dm : dm) / speedMod, isGravitationEnabled);
+	}
 
 	/*
 		Рисуем мир заново, если была нажата

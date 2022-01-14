@@ -8,11 +8,15 @@
 	На данный момент drag'n'drop в emscripten не поддерживается,
 	соответственно и подключать его нет особой нужды.
 */
-#include "dragndrop.h"
+#include "modules/dragndrop.h"
 #endif
-#include "types.h"
+#ifdef USE_SDL_TTF
+#include "modules/overlay.h"
+#endif
 #include "constants.h"
 #include "engine.h"
+#define VSERROR_STRINGS
+#include "error.h"
 #include "map.h"
 #include "input.h"
 
@@ -70,6 +74,11 @@ int main(int argc, char *argv[]) {
 	Engine_AddListener(LISTEN_SDL_WINDOW, DND_Window);
 	Engine_AddListener(LISTEN_SDL_EVENT, DND_Event);
 #endif
+#ifdef USE_SDL_TTF
+	Engine_AddListener(LISTEN_ENGINE_START, Overlay_Init);
+	Engine_AddListener(LISTEN_ENGINE_UPDATE, Overlay_Update);
+	Engine_AddListener(LISTEN_ENGINE_DRAW, Overlay_Draw);
+#endif
 	Engine_AddListener(LISTEN_CONTROLLER_ADD, AddController);
 	Engine_AddListener(LISTEN_CONTROLLER_FAIL, FailController);
 	Engine_AddListener(LISTEN_CONTROLLER_DEL, RemoveController);
@@ -85,6 +94,7 @@ int main(int argc, char *argv[]) {
 	while(Engine_Update());
 #endif
 
+	Engine_CallListeners(LISTEN_ENGINE_STOP, NULL);
 	Engine_End();
 	return 0;
 }

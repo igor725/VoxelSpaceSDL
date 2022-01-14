@@ -1,8 +1,16 @@
 #ifndef VSCAMERA_H
 #define VSCAMERA_H
-#include "SDL_stdinc.h"
+#include <SDL_stdinc.h>
 #include "constants.h"
-#include "types.h"
+
+typedef struct sCamera {
+	Point position; // Текущая позиция камеры
+	float height; // Высота камеры над картой
+	float distance; // Дальность прорисовки
+	float horizon; // Уровень горизонта
+	float angle; // Угол поворота камеры
+	float zstep; // Шаг по оси Z
+} Camera;
 
 static inline void Camera_AdjustDistance(Camera *cam, float value) {
 	cam->distance += value;
@@ -16,7 +24,7 @@ static inline void Camera_StrafeHoriz(Camera *cam, float spd) {
 }
 
 static inline void Camera_StrafeVert(Camera *cam, float spd) {
-	cam->height += spd * CAMERA_HEIGHT_STEP;
+	cam->height += spd * CAMERA_MOVE_STEP;
 }
 
 static inline void Camera_Pitch(Camera *cam, float spd) {

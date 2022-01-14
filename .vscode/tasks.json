@@ -6,7 +6,7 @@
 			"label": "Build VoxelSpace",
 			"linux": {
 				"command": "./build.sh",
-				"args": ["dbg", "sdlimage"],
+				"args": ["dbg", "sdlimage","overlay"],
 				"detail": "compiler: gcc-like",
 				"problemMatcher": [
 					"$gcc"
@@ -14,7 +14,7 @@
 			},
 			"windows": {
 				"command": ".\\build.bat",
-				"args": ["dbg", "sdlimage"],
+				"args": ["dbg", "sdlimage", "overlay"],
 				"detail": "compiler: cl.exe",
 				"problemMatcher": [
 					"$msCompile"

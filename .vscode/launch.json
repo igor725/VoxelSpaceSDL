@@ -21,7 +21,7 @@
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}\\out",
 			"environment": [
-				{"name": "path", "value": "..\\SDL2\\lib\\x64;..\\SDL2_Image\\lib\\x64"}
+				{"name": "path", "value": "..\\SDL2\\lib\\x64;..\\SDL2_Image\\lib\\x64;..\\SDL2_ttf\\lib\\x64"}
 			],
 			"console": "integratedTerminal",
 			"preLaunchTask": "Build VoxelSpace"

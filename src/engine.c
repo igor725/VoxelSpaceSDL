@@ -1,11 +1,13 @@
-// Говорим SDL, что не нужно переписывать main
-#define SDL_MAIN_HANDLED
+#include "engine.h"
+#include "constants.h"
 #include <SDL.h>
 #ifdef USE_SDL_IMAGE
 #include <SDL_image.h>
 #endif
-#include "constants.h"
-#include "engine.h"
+#ifdef USE_SDL_TTF
+#include <SDL_ttf.h>
+#endif
+#include "camera.h"
 #include "map.h"
 
 struct sContext {
@@ -17,7 +19,7 @@ struct sContext {
 	struct sListener {
 		void(*func)(void *);
 		struct sListener *next;
-	} *listeners[LISTEN_MAX];
+	} *listeners[LISTEN_TYPES_MAX];
 	Camera camera;
 	Map map;
 } ctx = {
@@ -67,6 +69,10 @@ int Engine_Start(void) {
 	CompareSDLVersions("SDL Image", &cver, IMG_Linked_Version());
 #endif
 
+#ifdef USE_SDL_TTF
+	SDL_TTF_VERSION(&cver);
+	CompareSDLVersions("SDL TTF", &cver, TTF_Linked_Version());
+#endif
 
 	if(!CreateSDLWindow(SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE)) {
 		SDL_LogError(0, "Failed to create SDL window: %s", SDL_GetError());
@@ -142,8 +148,8 @@ int Engine_Update(void) {
 
 	// Рисуем в SDL окне нашу текстуру
 	SDL_RenderClear(ctx.render);
-	Engine_CallListeners(LISTEN_ENGINE_DRAW, ctx.screen);
 	SDL_RenderCopy(ctx.render, ctx.screen, NULL, NULL);
+	Engine_CallListeners(LISTEN_ENGINE_DRAW, ctx.render);
 	SDL_RenderPresent(ctx.render);
 
 	// Считаем время, затраченное на полный тик
@@ -183,6 +189,10 @@ void Engine_End(void) {
 		SDL_DestroyTexture(ctx.screen);
 		ctx.screen = NULL;
 	}
+
+#ifdef USE_SDL_IMAGE
+	IMG_Quit();
+#endif
 
 	Map_Close(&ctx.map);
 	SDL_Quit();

@@ -9,7 +9,7 @@
 #define GRAPHICS_FLAGS SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE
 
 #define INPUT_MOUSE_SENS 0.057f // Чувствительность мыши при управлении камерой
-#define INPUT_TOUCH_SENS 30.0f // Чувствительность тач панели геймпада
+#define INPUT_TOUCH_SENS 80.0f // Чувствительность тач панели геймпада
 #define INPUT_MAX_PADS 8 // Максимально возможное количество обрабатываемых геймпадов
 #define INPUT_MAX_KEYBINDS 4 // Наборы клавиш, обрабатываемые движком
 #define INPUT_GRAVITATION_MULT 9.81f // Множитель гравитации
@@ -19,7 +19,6 @@
 #define CAMERA_ANGLE_STEP 0.08f // Шаг вращения камеры
 #define CAMERA_HORIZON_STEP 23.0f // Шаг изменения угла наклона
 #define CAMERA_HEIGHT_MAX 1000.0f // Максимальная высота камеры
-#define CAMERA_HEIGHT_STEP 4.0f // Шаг изменения высоты
 #define CAMERA_HEIGHT_MOD 0.02f // Влияние линии горизонта на вектор движения камеры
 #define CAMERA_DISTANCE_STEP 150.0f // Шаг изменения дальности прорисовки
 #define CAMERA_HEIGHT_DEFAULT 178.0f // Высота камеры по умолчанию

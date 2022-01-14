@@ -1,6 +1,16 @@
 #ifndef VSMAP_H
 #define VSMAP_H
-#include "types.h"
+#include "camera.h"
+
+typedef struct sMap {
+	int ready; // Была ли карта успешно загружена
+	int redraw; // Нужно ли перерисовывать карту
+	int width, height; // Размерность карты
+	int shift; // Побитовое смещение ширины карты
+	int *hiddeny; // Спрятанные линии
+	int *color; // Текстура карты
+	unsigned char *altitude; // Высоты карты
+} Map;
 
 int Map_Open(Map *map, const char *diffuse, const char *height);
 static inline Uint8 Map_GetHeight(Map *map, Point *p) {

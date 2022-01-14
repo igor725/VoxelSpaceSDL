@@ -1,4 +1,5 @@
 out/*
+!out/*.ttf
 !out/maps
 SDL2*
 *.tar.gz

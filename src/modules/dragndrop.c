@@ -1,11 +1,13 @@
 #include <SDL_events.h>
 #include <SDL_stdinc.h>
 #include <SDL_log.h>
-#include "engine.h"
-#include "map.h"
+#include "dragndrop.h"
+#include "../engine.h"
+#define VSERROR_STRINGS
+#include "../error.h"
+#include "../map.h"
 
-char droppedFileType = 0;
-char *droppedFile = NULL;
+char *droppedFile = NULL, droppedFileType = 0;
 
 void DND_Window(void *ptr) {
 	if(ptr) SDL_EventState(SDL_DROPFILE, SDL_ENABLE);

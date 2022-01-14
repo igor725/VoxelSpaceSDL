@@ -5,6 +5,7 @@
 #endif
 #include "constants.h"
 #include "engine.h"
+#include "error.h"
 #include "camera.h"
 #include "map.h"
 
