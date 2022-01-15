@@ -27,6 +27,6 @@
 #define CAMERA_HORIZON_DEFAULT ((float)GRAPHICS_HEIGHT * 0.50f) // Угол наклона камеры по умолчанию
 #define CAMERA_ZSTEP_DEFAULT 0.002f // Шаг по оси Z по умолчанию
 #define CAMERA_ZSTEP_MIN 0.001f // Минимальный шаг по оси Z
-#define CAMERA_ZSTEP_MAX 0.24f // После этого значения изображение становится месивом из пикселей
-#define CAMERA_ZSTEP_STEP 0.001f // Название этого дефайна звучит устрашающе
+#define CAMERA_ZSTEP_MAX 0.16f // После этого значения изображение становится месивом из пикселей
+#define CAMERA_ZSTEP_MOD 0.001f // Название этого дефайна звучит устрашающе
 #endif

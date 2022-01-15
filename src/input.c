@@ -44,7 +44,7 @@ static int ProcessControllerButtonDown(Camera *cam, SDL_GameControllerButton btn
 			return 1;
 		case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
 		case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
-			Camera_AdjustDistance(cam, btn == SDL_CONTROLLER_BUTTON_LEFTSHOULDER ? -CAMERA_DISTANCE_STEP : CAMERA_DISTANCE_STEP);
+			Camera_AdjustDistance(cam, (btn == SDL_CONTROLLER_BUTTON_LEFTSHOULDER ? -1 : 1) * CAMERA_DISTANCE_STEP);
 			return 1;
 		case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
 			Camera_ResetPitch(cam);
@@ -185,18 +185,18 @@ static void ProcessKeyDown(SDL_Scancode code, Uint16 mod) {
 			if(mod & KMOD_CTRL)
 				Camera_AdjustDistance(cam, CAMERA_DISTANCE_DEFAULT - cam->distance);
 			else
-				Camera_AdjustDistance(cam, mod & KMOD_SHIFT ? -CAMERA_DISTANCE_STEP : CAMERA_DISTANCE_STEP);
+				Camera_AdjustDistance(cam, (mod & KMOD_SHIFT ? -1 : 1) * CAMERA_DISTANCE_STEP);
 			break;
 		case SDL_SCANCODE_C:
 			Camera_ResetPitch(cam);
 			map->redraw = 1;
 			break;
 		case SDL_SCANCODE_J:
-			cam->zstep = max(CAMERA_ZSTEP_MIN, (cam->zstep -= CAMERA_ZSTEP_STEP));
+			cam->zstep = max(CAMERA_ZSTEP_MIN, (cam->zstep -= CAMERA_ZSTEP_MOD));
 			map->redraw = 1;
 			break;
 		case SDL_SCANCODE_K:
-			cam->zstep = min(CAMERA_ZSTEP_MAX, (cam->zstep += CAMERA_ZSTEP_STEP));
+			cam->zstep = min(CAMERA_ZSTEP_MAX, (cam->zstep += CAMERA_ZSTEP_MOD));
 			map->redraw = 1;
 			break;
 		case SDL_SCANCODE_G:

@@ -54,7 +54,7 @@ int Engine_Start(void) {
 	// Инициализируем SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
 		if(SDL_Init(SDL_INIT_VIDEO) != 0) {
-			SDL_LogError(0, "SDL_Init failed: %s", SDL_GetError());
+			SDL_LogCritical(0, "SDL_Init failed: %s", SDL_GetError());
 			return 1;
 		}
 	}
@@ -67,6 +67,10 @@ int Engine_Start(void) {
 #ifdef USE_SDL_IMAGE
 	SDL_IMAGE_VERSION(&cver);
 	CompareSDLVersions("SDL Image", &cver, IMG_Linked_Version());
+	if(IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG) < 0) {
+		SDL_LogCritical(0, "Failed to init SDL2_image: %s.", IMG_GetError());
+		return 1;
+	}
 #endif
 
 #ifdef USE_SDL_TTF
@@ -75,7 +79,7 @@ int Engine_Start(void) {
 #endif
 
 	if(!CreateSDLWindow(SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE)) {
-		SDL_LogError(0, "Failed to create SDL window: %s", SDL_GetError());
+		SDL_LogCritical(0, "Failed to create SDL window: %s", SDL_GetError());
 		return 2;
 	}
 
@@ -84,7 +88,7 @@ int Engine_Start(void) {
 		под наши рендерерские запросы.
 	*/
 	if((ctx.render = SDL_CreateRenderer(ctx.wnd, -1, GRAPHICS_FLAGS)) == NULL) {
-		SDL_LogError(0, "Failed to create SDL renderer: %s", SDL_GetError());
+		SDL_LogCritical(0, "Failed to create SDL renderer: %s", SDL_GetError());
 		return 3;
 	} else {
 		SDL_RendererInfo ri;
@@ -102,7 +106,7 @@ int Engine_Start(void) {
 		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
 		GRAPHICS_WIDTH, GRAPHICS_HEIGHT
 	)) == NULL) {
-		SDL_LogError(0, "Failed to create SDL texture: %s", SDL_GetError());
+		SDL_LogCritical(0, "Failed to create SDL texture: %s", SDL_GetError());
 		return 4;
 	}
 
