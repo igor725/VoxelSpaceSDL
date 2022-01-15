@@ -30,6 +30,7 @@ static inline void RemoveController(Sint32 id) {
 	if(id < INPUT_MAX_PADS && pads[id]) {
 		Engine_CallListeners(LISTEN_CONTROLLER_DEL, pads[id]);
 		SDL_GameControllerClose(pads[id]);
+		pads[id] = NULL;
 	}
 }
 

@@ -38,9 +38,9 @@ if [ $VOXEL_EMSCRIPTEN -eq 1 ]; then
 		exit 1;
 	fi
 	CC="emcc";
+	VOXEL_OUTFILE="index.html";
 	VOXEL_OUTDIR="$VOXEL_OUTDIR/html";
 	[ -d $VOXEL_OUTDIR ] || mkdir -p $VOXEL_OUTDIR;
-	VOXEL_OUTFILE="index.html";
 	VOXEL_CFLAGS="$VOXEL_CFLAGS -s USE_SDL=2 -s SINGLE_FILE=1";
 	VOXEL_CFLAGS="$VOXEL_CFLAGS -s ALLOW_MEMORY_GROWTH=1";
 	VOXEL_CFLAGS="$VOXEL_CFLAGS --preload-file out/maps/C1W.bmp@maps/C1W.bmp";
