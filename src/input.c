@@ -2,6 +2,7 @@
 #include <SDL_scancode.h>
 #include <SDL_events.h>
 #include <SDL_stdinc.h>
+#include <SDL_version.h>
 #include <SDL_log.h>
 #include "constants.h"
 #include "engine.h"
@@ -122,6 +123,7 @@ static int PollController(SDL_GameController *pad, Camera *cam, float dm) {
 		} else if(padButtonState[i]) padButtonState[i] = 0;
 	}
 
+#if SDL_VERSION_ATLEAST(2, 0, 14)
 	if(SDL_GameControllerGetNumTouchpads(pad) > 0) {
 		Uint8 state = 0;
 		static float ox = 0.0f, oy = 0.0f;
@@ -138,10 +140,10 @@ static int PollController(SDL_GameController *pad, Camera *cam, float dm) {
 			} else ox = 0.0f, oy = 0.0f;
 		}
 	}
+#endif
 
 	return handled;
 }
-
 static int PollControllers(Camera *cam, float dm) {
 	for(Sint32 id = 0; id < INPUT_MAX_PADS; id++) {
 		SDL_GameController *pad = pads[id];
