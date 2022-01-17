@@ -3,7 +3,7 @@
 #ifdef USE_SDL_IMAGE
 #include <SDL_image.h>
 #endif
-#include "constants.h"
+#include "defines.h"
 #include "engine.h"
 #include "error.h"
 #include "camera.h"

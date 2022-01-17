@@ -1,8 +1,17 @@
 #ifndef VSCONSTANTS_H
 #define VSCONSTANTS_H
+#ifndef min
+#define min(a, b) (((a)<(b))?(a):(b))
+#define max(a, b) (((a)>(b))?(a):(b))
+#endif
+
 #ifndef NULL
 #define NULL (void *)0
 #endif
+
+#define POINT_ADD(a, b) (a).x += (b).x; (a).y += (b).y;
+#define POINT_MAKE(_x, _y) {.x=_x, .y=_y}
+
 
 #define GRAPHICS_WIDTH 800 // Ширина SDL окна
 #define GRAPHICS_HEIGHT ((int)(GRAPHICS_WIDTH * 0.75)) // Высота SDL окна
@@ -18,11 +27,13 @@
 #define CAMERA_MOVE_STEP 4.0f // Скорость передвижения камеры
 #define CAMERA_ANGLE_STEP 0.08f // Шаг вращения камеры
 #define CAMERA_HORIZON_STEP 23.0f // Шаг изменения угла наклона
+#define CAMERA_HEIGHT_DEFAULT 178.0f // Высота камеры по умолчанию
 #define CAMERA_HEIGHT_MAX 1000.0f // Максимальная высота камеры
 #define CAMERA_HEIGHT_MOD 0.02f // Влияние линии горизонта на вектор движения камеры
-#define CAMERA_DISTANCE_STEP 150.0f // Шаг изменения дальности прорисовки
-#define CAMERA_HEIGHT_DEFAULT 178.0f // Высота камеры по умолчанию
 #define CAMERA_DISTANCE_DEFAULT 750.0f // Дальность прорисовки по умолчанию
+#define CAMERA_DISTANCE_MIN 300.0f // Минимальная дальность прорисовки
+#define CAMERA_DISTANCE_MAX 3000.0f // Максимальная дальность прорисовки
+#define CAMERA_DISTANCE_STEP 150.0f // Шаг изменения дальности прорисовки
 #define CAMERA_POSITION_DEFAULT POINT_MAKE(512.0f, 800.0f) // Стартовая позиция камеры
 #define CAMERA_HORIZON_DEFAULT ((float)GRAPHICS_HEIGHT * 0.50f) // Угол наклона камеры по умолчанию
 #define CAMERA_ZSTEP_DEFAULT 0.002f // Шаг по оси Z по умолчанию

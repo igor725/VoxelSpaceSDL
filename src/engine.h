@@ -6,9 +6,6 @@ typedef struct sPoint {
 	float x, y;
 } Point;
 
-#define POINT_ADD(a, b) (a).x += (b).x; (a).y += (b).y;
-#define POINT_MAKE(_x, _y) {.x=_x, .y=_y}
-
 #include "map.h"
 #include "camera.h"
 

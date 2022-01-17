@@ -4,7 +4,7 @@
 #include <SDL_stdinc.h>
 #include <SDL_version.h>
 #include <SDL_log.h>
-#include "constants.h"
+#include "defines.h"
 #include "engine.h"
 #include "camera.h"
 #include "map.h"
@@ -40,11 +40,11 @@ static int ProcessControllerButtonDown(Camera *cam, SDL_GameControllerButton btn
 			Engine_Stop();
 			break;
 		case SDL_CONTROLLER_BUTTON_Y:
-			Camera_AdjustDistance(cam, CAMERA_DISTANCE_DEFAULT - cam->distance);
+			Camera_ResetDistance(cam);
 			return 1;
 		case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
 		case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
-			Camera_AdjustDistance(cam, (btn == SDL_CONTROLLER_BUTTON_LEFTSHOULDER ? -1 : 1) * CAMERA_DISTANCE_STEP);
+			Camera_AdjustDistance(cam, (btn == SDL_CONTROLLER_BUTTON_LEFTSHOULDER ? -1.0f : 1.0f) * CAMERA_DISTANCE_STEP);
 			return 1;
 		case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
 			Camera_ResetPitch(cam);
@@ -154,11 +154,6 @@ static int PollControllers(Camera *cam, float dm) {
 	return 0;
 }
 
-#ifndef min
-#define min(a, b) (((a)<(b))?(a):(b))
-#define max(a, b) (((a)>(b))?(a):(b))
-#endif
-
 static void ProcessKeyDown(SDL_Scancode code, Uint16 mod) {
 	Camera *cam = NULL;
 	Map *map = NULL;
@@ -183,20 +178,17 @@ static void ProcessKeyDown(SDL_Scancode code, Uint16 mod) {
 		case SDL_SCANCODE_SPACE:
 			map->redraw = 1;
 			if(mod & KMOD_CTRL)
-				Camera_AdjustDistance(cam, CAMERA_DISTANCE_DEFAULT - cam->distance);
+				Camera_ResetDistance(cam);
 			else
-				Camera_AdjustDistance(cam, (mod & KMOD_SHIFT ? -1 : 1) * CAMERA_DISTANCE_STEP);
+				Camera_AdjustDistance(cam, (mod & KMOD_SHIFT ? -1.0f : 1.0f) * CAMERA_DISTANCE_STEP);
 			break;
 		case SDL_SCANCODE_C:
 			Camera_ResetPitch(cam);
 			map->redraw = 1;
 			break;
 		case SDL_SCANCODE_J:
-			cam->zstep = max(CAMERA_ZSTEP_MIN, (cam->zstep -= CAMERA_ZSTEP_MOD));
-			map->redraw = 1;
-			break;
 		case SDL_SCANCODE_K:
-			cam->zstep = min(CAMERA_ZSTEP_MAX, (cam->zstep += CAMERA_ZSTEP_MOD));
+			Camera_AdjustZStep(cam, code == SDL_SCANCODE_J ? -1.0f : 1.0f);
 			map->redraw = 1;
 			break;
 		case SDL_SCANCODE_G:

@@ -1,5 +1,5 @@
 #include "engine.h"
-#include "constants.h"
+#include "defines.h"
 #include <SDL.h>
 #ifdef USE_SDL_IMAGE
 #include <SDL_image.h>

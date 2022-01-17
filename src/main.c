@@ -13,7 +13,7 @@
 #ifdef USE_SDL_TTF
 #include "modules/overlay.h"
 #endif
-#include "constants.h"
+#include "defines.h"
 #include "engine.h"
 #define VSERROR_STRINGS
 #include "error.h"

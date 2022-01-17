@@ -1,7 +1,7 @@
 #ifndef VSCAMERA_H
 #define VSCAMERA_H
 #include <SDL_stdinc.h>
-#include "constants.h"
+#include "defines.h"
 
 typedef struct sCamera {
 	Point position; // Текущая позиция камеры
@@ -14,8 +14,20 @@ typedef struct sCamera {
 
 static inline void Camera_AdjustDistance(Camera *cam, float value) {
 	cam->distance += value;
-	if(cam->distance < 300.0f || cam->distance > 3000.0f)
-		cam->distance = 300.0f;
+	if(cam->distance < CAMERA_DISTANCE_MIN)
+		cam->distance = CAMERA_DISTANCE_MAX;
+	else if (cam->distance > CAMERA_DISTANCE_MAX)
+		cam->distance = CAMERA_DISTANCE_MIN;
+		
+}
+
+static inline void Camera_AdjustZStep(Camera *cam, float dir) {
+	cam->zstep += dir * CAMERA_ZSTEP_MOD;
+	cam->zstep = min(max(cam->zstep, CAMERA_ZSTEP_MIN), CAMERA_ZSTEP_MAX);
+}
+
+static inline void Camera_ResetDistance(Camera *cam) {
+	cam->distance = CAMERA_DISTANCE_DEFAULT;
 }
 
 static inline void Camera_StrafeHoriz(Camera *cam, float spd) {
