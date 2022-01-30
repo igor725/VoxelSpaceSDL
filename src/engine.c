@@ -180,7 +180,7 @@ void Engine_ToggleFullscreen(void) {
 		SDL_WINDOW_FULLSCREEN_DESKTOP
 	);
 	if(SpawnScreen()) {
-		SDL_LogCritical(0, "Failed to spawn screen");
+		SDL_LogCritical(0, "Failed to create SDL texture: %s", SDL_GetError());
 		exit(1);
 	}
 }
