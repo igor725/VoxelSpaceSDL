@@ -255,7 +255,7 @@ static int ProcessKeyboard(Camera *cam, float dm) {
 	*/
 	for(int i = 0; i < INPUT_MAX_KEYBINDS; i++)
 		if(input[i]) return 1;
-	
+
 	return 0;
 }
 

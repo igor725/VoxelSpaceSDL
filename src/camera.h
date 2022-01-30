@@ -18,7 +18,6 @@ static inline void Camera_AdjustDistance(Camera *cam, float value) {
 		cam->distance = CAMERA_DISTANCE_MAX;
 	else if (cam->distance > CAMERA_DISTANCE_MAX)
 		cam->distance = CAMERA_DISTANCE_MIN;
-		
 }
 
 static inline void Camera_AdjustZStep(Camera *cam, float dir) {

@@ -61,10 +61,10 @@ int main(int argc, char *argv[]) {
 		if(chdir(argv[0]) == -1)
 			SDL_LogWarn(0, "Failed to change directory");
 	}
-	
+
 	if(argc > 2) {
 		smDiffuse = argv[1];
-		smHeight = argv[2];	
+		smHeight = argv[2];
 	}
 
 	Engine_AddListener(LISTEN_ENGINE_START, LoadMap);

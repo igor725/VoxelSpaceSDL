@@ -45,7 +45,7 @@ void Overlay_Draw(void *ptr) {
 		SDL_FreeSurface(tsurf);
 		tsurf = NULL;
 	}
-	
+
 	SDL_RenderCopy(render, text, NULL, &txtrect);
 }
 
