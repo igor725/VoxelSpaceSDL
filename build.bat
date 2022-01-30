@@ -4,6 +4,7 @@ set VOXEL_USE_SDLIMAGE=0
 set VOXEL_OUTDIR=out
 set VOXEL_OUTFILE=vs.exe
 set VOXEL_EMSCRIPTEN=0
+set VOXEL_THREADED=0
 set VOXEL_RUN=0
 set VOXEL_OPT=no
 set VOXEL_DEBUG=0
@@ -16,6 +17,7 @@ IF "%1"=="sdlimage" set VOXEL_USE_SDLIMAGE=1
 IF "%1"=="overlay" set VOXEL_USE_SDLTTF=1
 IF "%1"=="dbg" set VOXEL_DEBUG=1
 IF "%1"=="web" set VOXEL_EMSCRIPTEN=1
+IF "%1"=="threaded" set VOXEL_THREADED=1
 IF "%1"=="optspeed" set VOXEL_OPT=speed
 IF "%1"=="optsize" set VOXEL_OPT=size
 IF "%1"=="woff" set VOXEL_WARN=no
@@ -43,6 +45,10 @@ set VOXEL_CFLAGS=/FC /Isrc\ /Fo%VOXEL_OUTDIR%\ /Fe%VOXEL_OUTDIR%\%VOXEL_OUTFILE%
 set VOXEL_LINK=/SUBSYSTEM:CONSOLE /libpath:SDL2\lib\%VSCMD_ARG_TGT_ARCH%
 set PATH=SDL2\lib\%VSCMD_ARG_TGT_ARCH%;!PATH!
 set VOXEL_LIBS=SDL2.lib
+
+IF "%VOXEL_THREADED%"=="1" (
+	set VOXEL_CFLAGS=!VOXEL_CFLAGS! /DUSE_THREADED_RENDER
+)
 
 IF "%VOXEL_USE_SDLIMAGE%"=="1" (
 	set VOXEL_LIBS=!VOXEL_LIBS! SDL2_image.lib

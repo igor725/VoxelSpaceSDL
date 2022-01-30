@@ -33,7 +33,7 @@ struct sContext {
 };
 
 static int CreateSDLWindow(unsigned int flags) {
-	if((ctx.wnd = SDL_CreateWindow("VoxelSpace SDL",
+	if((ctx.wnd = SDL_CreateWindow(GRAPHICS_TITLE,
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		GRAPHICS_WIDTH, GRAPHICS_HEIGHT, flags
 	)) == NULL) return 0;
@@ -110,6 +110,7 @@ int Engine_Start(void) {
 		return 4;
 	}
 
+	Map_SetScreen(&ctx.map, ctx.screen);
 	Engine_CallListeners(LISTEN_ENGINE_START, NULL);
 	return 0;
 }
@@ -148,7 +149,7 @@ int Engine_Update(void) {
 	Engine_CallListeners(LISTEN_ENGINE_UPDATE, &ctx.deltaTime);
 
 	// Перерисовываем мир
-	Map_Draw(&ctx.map, &ctx.camera, ctx.screen);
+	Map_Draw(&ctx.map, &ctx.camera);
 
 	// Рисуем в SDL окне нашу текстуру
 	SDL_RenderClear(ctx.render);
@@ -199,6 +200,7 @@ void Engine_End(void) {
 	IMG_Quit();
 #endif
 
+	Map_SetScreen(&ctx.map, NULL);
 	Map_Close(&ctx.map);
 	SDL_Quit();
 }

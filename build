@@ -19,6 +19,7 @@ for a in "$@"
 do
 	if [ "$a" == "sdlimage" ]; then VOXEL_SDLIMAGE=1; fi
 	if [ "$a" == "overlay" ]; then VOXEL_SDLTTF=1; fi
+	if [ "$a" == "threaded" ]; then VOXEL_THREADED=1; fi
 	if [ "$a" == "woff" ]; then VOXEL_WARN="no"; fi
 	if [ "$a" == "winf" ]; then VOXEL_WARN="inform"; fi
 	if [ "$a" == "wall" ]; then VOXEL_WARN="all"; fi
@@ -46,6 +47,8 @@ if [ $VOXEL_EMSCRIPTEN -eq 1 ]; then
 	VOXEL_CFLAGS="$VOXEL_CFLAGS --preload-file out/maps/C1W.bmp@maps/C1W.bmp";
 	VOXEL_CFLAGS="$VOXEL_CFLAGS --preload-file out/maps/D1.bmp@maps/D1.bmp";
 	if [ $VOXEL_RUN -eq 1 ]; then VOXEL_CFLAGS="$VOXEL_CFLAGS --emrun"; fi
+elif [ $VOXEL_THREADED -eq 1 ]; then
+	VOXEL_CFLAGS="$VOXEL_CFLAGS -DUSE_THREADED_RENDER"
 fi
 
 if [ $VOXEL_SDLIMAGE -eq 1 ]; then
