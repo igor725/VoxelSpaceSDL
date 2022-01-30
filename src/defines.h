@@ -44,7 +44,6 @@
 #define CAMERA_DISTANCE_MAX 10000.0f // Максимальная дальность прорисовки
 #define CAMERA_DISTANCE_STEP 150.0f // Шаг изменения дальности прорисовки
 #define CAMERA_POSITION_DEFAULT POINT_MAKE(512.0f, 800.0f) // Стартовая позиция камеры
-#define CAMERA_HORIZON_DEFAULT ((float)GRAPHICS_HEIGHT * 0.50f) // Угол наклона камеры по умолчанию
 #define CAMERA_ZSTEP_DEFAULT 0.002f // Шаг по оси Z по умолчанию
 #define CAMERA_ZSTEP_MIN 0.001f // Минимальный шаг по оси Z
 #define CAMERA_ZSTEP_MAX 0.16f // После этого значения изображение становится месивом из пикселей

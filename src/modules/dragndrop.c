@@ -25,28 +25,32 @@ void DND_Event(void *ptr) {
 			if(!tmpsymptr) tmpsymptr = SDL_strrchr(ev->drop.file, '/');
 			typesym = tmpsymptr ? *++tmpsymptr : *ev->drop.file;
 			if(typesym == 'C' || typesym == 'c' || typesym == 'D' || typesym == 'd') {
-				if(!droppedFile) {
-					droppedFile = ev->drop.file;
-					droppedFileType = typesym;
-				} else if(droppedFileType == typesym) {
-					SDL_free(droppedFile);
-					droppedFile = ev->drop.file;
-					droppedFileType = typesym;
+				if(droppedFile) {
+					if(droppedFileType == typesym) {
+						SDL_free(droppedFile);
+						droppedFile = NULL;
+						return;
+					}
 				} else {
-					Engine_GetObjects(&cam, &map);
-					Map_Close(map);
-					if(typesym == 'C' || typesym == 'c')
-						diffuse = ev->drop.file, height = droppedFile;
-					else
-						diffuse = droppedFile, height = ev->drop.file;
-
-					Errors ret;
-					if((ret = Map_Open(map, diffuse, height)) != ERROR_OK)
-						SDL_LogError(0, "Failed to load map: %s", Errors_Strings[ret]);
-					SDL_free(ev->drop.file);
-					SDL_free(droppedFile);
-					droppedFile = NULL;
+					droppedFile = ev->drop.file;
+					droppedFileType = typesym;
+					return;
 				}
+
+				Engine_GetObjects(&cam, &map);
+				Map_Close(map);
+				if(typesym == 'C' || typesym == 'c')
+					diffuse = ev->drop.file, height = droppedFile;
+				else
+					diffuse = droppedFile, height = ev->drop.file;
+
+				Errors ret;
+				if((ret = Map_Open(map, diffuse, height)) != ERROR_OK)
+					SDL_LogError(0, "Failed to load map: %s", Errors_Strings[ret]);
+
+				SDL_free(ev->drop.file);
+				SDL_free(droppedFile);
+				droppedFile = NULL;
 			}
 			break;
 	}

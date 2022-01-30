@@ -66,10 +66,9 @@ int Map_Open(Map *map, const char *diffuse, const char *height) {
 	map->width = sHeight->w;
 	map->height = sHeight->h;
 	map->shift = (int)(SDL_log10(sHeight->w) / SDL_log10(2));
-	map->hiddeny = SDL_calloc(4, GRAPHICS_WIDTH);
 	map->color = SDL_calloc(4, sHeight->w * sHeight->h);
 	map->altitude = SDL_calloc(1, sHeight->w * sHeight->h);
-	if(!map->hiddeny || !map->color || !map->altitude)
+	if(!map->color || !map->altitude)
 		return ERROR_MALLOC_FAIL;
 
 	const unsigned char *datah = sHeight->pixels;
@@ -183,7 +182,7 @@ static int RenderThread(void *ptr) {
 
 void Map_Draw(Map *map, Camera *cam) {
 	if(!map->redraw) return;
-	int *pixels = NULL, pitch = 0, width = 0, height = 0;
+	int *pixels = NULL, pitch = 0, width = 0, height = 0, failed = 0;
 	PrepareToDraw((SDL_Texture *)map->screen, &pixels, &pitch, &width, &height);
 	if(map->ready) {
 		map->rgctx.cam = cam;
@@ -193,12 +192,15 @@ void Map_Draw(Map *map, Camera *cam) {
 		for(int i = 0; i < width; i++)
 			map->hiddeny[i] = height;
 		SDL_CondBroadcast(map->rgctx.unlockcond);
-		for(int i = 0; i < map->rctxcnt; i++)
-			SDL_SemWait(map->rctxs[i].semaphore);
+		for(int i = 0; i < map->rctxcnt && !failed; i++)
+			failed = SDL_SemWaitTimeout(map->rctxs[i].semaphore, 100) != 0;
 	}
 
 	SDL_UnlockTexture((SDL_Texture *)map->screen);
-	map->redraw = 0;
+	if(failed) {
+		SDL_LogWarn(0, "Failed to draw map, retrying...");
+		map->redraw = 0;
+	}
 }
 
 static void DestroyThreads(Map *map) {
@@ -217,16 +219,19 @@ static void DestroyThreads(Map *map) {
 #endif
 
 void Map_SetScreen(Map *map, void *screen) {
+	map->screen = screen;
 #ifdef USE_THREADED_RENDER
-	if(screen == NULL) {
-		DestroyThreads(map);
-		return;
-	}
-
-	int width = 0;
 	DestroyThreads(map);
+#endif
+	if(!screen) return;
+	int width = 0;
 	if(SDL_QueryTexture(screen, NULL, NULL, &width, NULL) == 0) {
+		SDL_free(map->hiddeny);
+		map->hiddeny = SDL_calloc(4, width);
+		map->redraw = 1;
+#ifdef USE_THREADED_RENDER
 		map->rgctx.self = map;
+		map->rgctx.endwork = 0;
 		map->rgctx.unlockcond = SDL_CreateCond();
 		map->rctxcnt = max(SDL_GetCPUCount() - 1, 1);
 		map->rctxs = SDL_calloc(map->rctxcnt, sizeof(struct sMapRenderCtx));
@@ -240,12 +245,11 @@ void Map_SetScreen(Map *map, void *screen) {
 			ctx->end = min(ctx->start + perthwidth, width);
 			ctx->self = SDL_CreateThread(RenderThread, NULL, ctx);
 		}
+#endif
 	} else {
 		SDL_LogCritical(0, "Failed to query screen texture");
 		exit(1);
 	}
-#endif
-	map->screen = screen;
 }
 
 void Map_Close(Map *map) {

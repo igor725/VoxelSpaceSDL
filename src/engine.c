@@ -27,7 +27,6 @@ struct sContext {
 		.zstep = CAMERA_ZSTEP_DEFAULT,
 		.position = CAMERA_POSITION_DEFAULT,
 		.height = CAMERA_HEIGHT_DEFAULT,
-		.horizon = CAMERA_HORIZON_DEFAULT,
 		.distance = CAMERA_DISTANCE_DEFAULT
 	}
 };
@@ -47,6 +46,20 @@ static void CompareSDLVersions(const char *libname, const SDL_version *cv, const
 			libname, cv->major, cv->minor, cv->patch, lv->major, lv->minor, lv->patch
 		);
 	} else SDL_Log("%s library version: %d.%d.%d", libname, cv->major, cv->minor, cv->patch);
+}
+
+static int SpawnScreen(void) {
+	int width, height;
+	SDL_GetWindowSize(ctx.wnd, &width, &height);
+	if(ctx.screen) SDL_DestroyTexture(ctx.screen);
+	ctx.screen = SDL_CreateTexture(ctx.render,
+		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
+		width, height
+	);
+	ctx.camera.maxhorizon = (float)height;
+	ctx.camera.horizon = height / 2.0f;
+	Map_SetScreen(&ctx.map, ctx.screen);
+	return ctx.screen == NULL;
 }
 
 int Engine_Start(void) {
@@ -102,15 +115,11 @@ int Engine_Start(void) {
 		Создаём текстуру, которая будет использоваться
 		для хранения последнего отрисованного кадра.
 	*/
-	if((ctx.screen = SDL_CreateTexture(ctx.render,
-		SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-		GRAPHICS_WIDTH, GRAPHICS_HEIGHT
-	)) == NULL) {
+	if(SpawnScreen()) {
 		SDL_LogCritical(0, "Failed to create SDL texture: %s", SDL_GetError());
 		return 4;
 	}
 
-	Map_SetScreen(&ctx.map, ctx.screen);
 	Engine_CallListeners(LISTEN_ENGINE_START, NULL);
 	return 0;
 }
@@ -163,6 +172,17 @@ int Engine_Update(void) {
 	ctx.deltaTime = ctx.currTime - ctx.lastTime;
 	if(ctx.deltaTime > 1000) ctx.deltaTime = 0;
 	return 1;
+}
+
+void Engine_ToggleFullscreen(void) {
+	SDL_SetWindowFullscreen(ctx.wnd,
+		SDL_GetWindowFlags(ctx.wnd) ^
+		SDL_WINDOW_FULLSCREEN_DESKTOP
+	);
+	if(SpawnScreen()) {
+		SDL_LogCritical(0, "Failed to spawn screen");
+		exit(1);
+	}
 }
 
 void *Engine_GetWindow(void) {

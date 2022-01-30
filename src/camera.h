@@ -7,6 +7,7 @@ typedef struct sCamera {
 	Point position; // Текущая позиция камеры
 	float height; // Высота камеры над картой
 	float distance; // Дальность прорисовки
+	float maxhorizon; // Максимальный уровень горизонта
 	float horizon; // Уровень горизонта
 	float angle; // Угол поворота камеры
 	float zstep; // Шаг по оси Z
@@ -40,10 +41,12 @@ static inline void Camera_StrafeVert(Camera *cam, float spd) {
 
 static inline void Camera_Pitch(Camera *cam, float spd) {
 	cam->horizon -= spd * CAMERA_HORIZON_STEP;
+	// Ограничиваем горизонт камеры размерностью окна
+	cam->horizon = max(-cam->maxhorizon, min(cam->horizon, cam->maxhorizon));
 }
 
 static inline void Camera_ResetPitch(Camera *cam) {
-	cam->horizon = CAMERA_HORIZON_DEFAULT;
+	cam->horizon = cam->maxhorizon / 2.0f;
 }
 
 static inline void Camera_Rotate(Camera *cam, float spd) {
@@ -54,6 +57,6 @@ static inline void Camera_MoveForward(Camera *cam, float spd, int modHeight) {
 	cam->position.x += spd * CAMERA_MOVE_STEP * SDL_sinf(cam->angle);
 	cam->position.y += spd * CAMERA_MOVE_STEP * SDL_cosf(cam->angle);
 	if(!modHeight)
-		cam->height -= spd * (cam->horizon - CAMERA_HORIZON_DEFAULT) * CAMERA_HEIGHT_MOD;
+		cam->height -= spd * (cam->horizon - (cam->maxhorizon / 2.0f)) * CAMERA_HEIGHT_MOD;
 }
 #endif

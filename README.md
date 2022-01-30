@@ -23,6 +23,7 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 * Space - Increase render distance
 * Shift + Space - Decrease render distance
 * LCTRL + Space - Reset render distance to default value
+* Alt + Enter - Toggle fullscreen
 
 ### Game Controller
 

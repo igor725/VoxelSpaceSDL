@@ -195,6 +195,10 @@ static void ProcessKeyDown(SDL_Scancode code, Uint16 mod) {
 			isGravitationEnabled = !isGravitationEnabled;
 			velocity = 0.0f;
 			break;
+		case SDL_SCANCODE_RETURN:
+			if((mod & KMOD_ALT) != 0)
+				Engine_ToggleFullscreen();
+			break;
 		case SDL_SCANCODE_ESCAPE:
 			Engine_Stop();
 			break;
@@ -305,8 +309,6 @@ void Input_Update(void *ptr) {
 
 	// Вытаскиваем камеру из-под земли, если она там
 	cam->height = max(minHeight, min(cam->height, CAMERA_HEIGHT_MAX));
-	// Ограничиваем горизонт камеры размерностью окна
-	cam->horizon = max(-GRAPHICS_HEIGHT, min(cam->horizon, GRAPHICS_HEIGHT));
 	// Обнуляем угл камеры, если она прошла полный круг
 	if(SDL_fabsf(cam->angle) > M_PI * 2) cam->angle = 0;
 }

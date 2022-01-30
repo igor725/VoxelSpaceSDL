@@ -28,6 +28,7 @@ int Engine_Update(void);
 void Engine_Stop(void);
 void Engine_End(void);
 
+void Engine_ToggleFullscreen(void);
 void *Engine_GetWindow(void);
 void Engine_GetObjects(Camera **cam, Map **map);
 int Engine_GetDeltaTime(void);
