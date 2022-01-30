@@ -199,8 +199,9 @@ void Map_Draw(Map *map, Camera *cam) {
 	SDL_UnlockTexture((SDL_Texture *)map->screen);
 	if(failed) {
 		SDL_LogWarn(0, "Failed to draw map, retrying...");
-		map->redraw = 0;
+		return;
 	}
+	map->redraw = 0;
 }
 
 static void DestroyThreads(Map *map) {
