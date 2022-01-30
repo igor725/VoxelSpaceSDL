@@ -75,6 +75,7 @@ fi
 if [ $VOXEL_EMSCRIPTEN -eq 0 ]; then
 	VOXEL_SOURCES="$VOXEL_SOURCES src/modules/dragndrop.c"
 	VOXEL_CFLAGS="$VOXEL_CFLAGS $(pkg-config --cflags --libs $VOXEL_LIBS)";
+	if [ $? -ne 0 ]; then exit 1; fi
 fi
 
 if [ "$VOXEL_WARN" == "no" ]; then

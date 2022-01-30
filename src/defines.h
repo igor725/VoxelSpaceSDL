@@ -20,7 +20,11 @@
 
 #define GRAPHICS_WIDTH 800 // Ширина SDL окна
 #define GRAPHICS_HEIGHT ((int)(GRAPHICS_WIDTH * 0.75)) // Высота SDL окна
+// Для отключения вертикальной синхронизации раскомментируйте строчку ниже
+// #define GRAPHICS_FLAGS SDL_RENDERER_TARGETTEXTURE
+#ifndef GRAPHICS_FLAGS
 #define GRAPHICS_FLAGS SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE
+#endif
 
 #define INPUT_MOUSE_SENS 0.057f // Чувствительность мыши при управлении камерой
 #define INPUT_TOUCH_SENS 80.0f // Чувствительность тач панели геймпада
