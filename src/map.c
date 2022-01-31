@@ -193,7 +193,7 @@ void Map_Draw(Map *map, Camera *cam) {
 			map->hiddeny[i] = height;
 		SDL_CondBroadcast(map->rgctx.unlockcond);
 		for(int i = 0; i < map->rctxcnt && !failed; i++)
-			failed = SDL_SemWaitTimeout(map->rctxs[i].semaphore, 100) != 0;
+			failed = SDL_SemWaitTimeout(map->rctxs[i].semaphore, 600) != 0;
 	}
 
 	SDL_UnlockTexture((SDL_Texture *)map->screen);
