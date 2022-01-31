@@ -32,15 +32,6 @@ struct sContext {
 	}
 };
 
-static int CreateSDLWindow(unsigned int flags) {
-	if((ctx.wnd = SDL_CreateWindow(GRAPHICS_TITLE,
-		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		GRAPHICS_WIDTH, GRAPHICS_HEIGHT, flags
-	)) == NULL) return 0;
-	Engine_CallListeners(LISTEN_SDL_WINDOW, ctx.wnd);
-	return 1;
-}
-
 static void CompareSDLVersions(const char *libname, const SDL_version *cv, const SDL_version *lv) {
 	if(SDL_VERSIONNUM(cv->major, cv->minor, cv->patch) != SDL_VERSIONNUM(lv->major, lv->minor, lv->patch)) {
 		SDL_LogWarn(0, "%s library version mismatch. Expected: %d.%d.%d, loaded: %d.%d.%d",
@@ -63,7 +54,7 @@ static int SpawnScreen(void) {
 	return ctx.screen == NULL;
 }
 
-int Engine_Start(void) {
+int Engine_Start(EngineSettings *es) {
 	SDL_SetMainReady();
 	// Инициализируем SDL
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
@@ -92,16 +83,23 @@ int Engine_Start(void) {
 	CompareSDLVersions("SDL TTF", &cver, TTF_Linked_Version());
 #endif
 
-	if(!CreateSDLWindow(SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE)) {
+	if((ctx.wnd = SDL_CreateWindow(GRAPHICS_TITLE,
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		es->width, es->height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+	)) == NULL) {
 		SDL_LogCritical(0, "Failed to create SDL window: %s", SDL_GetError());
 		return 2;
 	}
+	Engine_CallListeners(LISTEN_SDL_WINDOW, ctx.wnd);
 
 	/*
 		Ищем у пользователя рендерер, подходящий
 		под наши рендерерские запросы.
 	*/
-	if((ctx.render = SDL_CreateRenderer(ctx.wnd, -1, GRAPHICS_FLAGS)) == NULL) {
+	Uint32 rflags = SDL_RENDERER_TARGETTEXTURE;
+	if(es->vsync) rflags |= SDL_RENDERER_PRESENTVSYNC;
+
+	if((ctx.render = SDL_CreateRenderer(ctx.wnd, -1, rflags)) == NULL) {
 		SDL_LogCritical(0, "Failed to create SDL renderer: %s", SDL_GetError());
 		return 3;
 	} else {
@@ -120,6 +118,9 @@ int Engine_Start(void) {
 		SDL_LogCritical(0, "Failed to create SDL texture: %s", SDL_GetError());
 		return 4;
 	}
+
+	if(es->diffusemap && es->heightmap)
+		Map_Open(&ctx.map, es->diffusemap, es->heightmap);
 
 	Engine_CallListeners(LISTEN_ENGINE_START, NULL);
 	return 0;

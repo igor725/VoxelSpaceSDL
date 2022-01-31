@@ -9,6 +9,11 @@ typedef struct sPoint {
 #include "map.h"
 #include "camera.h"
 
+typedef struct sEngineSettings {
+	int vsync, width, height;
+	char *diffusemap, *heightmap;
+} EngineSettings;
+
 typedef enum eListeners {
 	LISTEN_ENGINE_START, // Вызвать при запуске движка
 	LISTEN_ENGINE_UPDATE, // Вызывать каждый тик
@@ -23,7 +28,7 @@ typedef enum eListeners {
 } Listeners;
 
 
-int Engine_Start(void);
+int Engine_Start(EngineSettings *es);
 int Engine_Update(void);
 void Engine_Stop(void);
 void Engine_End(void);
