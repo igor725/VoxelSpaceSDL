@@ -12,7 +12,8 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 ### Keyboard + Mouse
 
 * G - Toggle gravitation
-* LMB - Free look
+* LMB (hold) - Free look
+* LMB (double click) - Enable persist free look
 * ESC - Close application
 * W/S - Move camera forward/backward
 * A/D - Rotate camera or strafe (if LMB pressed)
@@ -39,7 +40,7 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 * B - Close application
 * Y - Reset render distance to default value
 * D-Pad Up/Down - Adjust camera height
-* Touchpad - Look around
+* Touchpad - Free look
 
 ## Building
 

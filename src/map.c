@@ -214,6 +214,7 @@ static void DestroyThreads(Map *map) {
 		SDL_DestroySemaphore(sem);
 	}
 
+	SDL_free(map->hiddeny);
 	SDL_free(map->rctxs);
 	map->rctxs = NULL;
 }
@@ -227,7 +228,6 @@ void Map_SetScreen(Map *map, void *screen) {
 	if(!screen) return;
 	int width = 0;
 	if(SDL_QueryTexture(screen, NULL, NULL, &width, NULL) == 0) {
-		SDL_free(map->hiddeny);
 		map->hiddeny = SDL_calloc(4, width);
 		map->redraw = 1;
 #ifdef USE_THREADED_RENDER
@@ -257,10 +257,6 @@ void Map_Close(Map *map) {
 	if(map->altitude) {
 		SDL_free(map->altitude);
 		map->altitude = NULL;
-	}
-	if(map->hiddeny) {
-		SDL_free(map->hiddeny);
-		map->hiddeny = NULL;
 	}
 	if(map->color) {
 		SDL_free(map->color);

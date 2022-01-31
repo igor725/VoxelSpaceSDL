@@ -13,7 +13,8 @@
 static SDL_GameController *pads[INPUT_MAX_PADS] = {0};
 static int padButtonState[SDL_CONTROLLER_BUTTON_MAX] = {0};
 static SDL_Scancode input[INPUT_MAX_KEYBINDS] = {0};
-static int isMouseGrabbed = 0, isGravitationEnabled = 0, isOnTheGround = 0;
+static int isMouseGrabbed = 0, persistGrab = 0,
+isGravitationEnabled = 0, isOnTheGround = 0;
 static float velocity = 0.0f;
 
 static inline void AddController(Sint32 id) {
@@ -154,6 +155,12 @@ static int PollControllers(Camera *cam, float dm) {
 	return 0;
 }
 
+static inline void ToggleMouseGrab(void) {
+	isMouseGrabbed = !isMouseGrabbed || persistGrab;
+	SDL_SetRelativeMouseMode(isMouseGrabbed);
+	SDL_SetWindowGrab(Engine_GetWindow(), isMouseGrabbed);
+}
+
 static void ProcessKeyDown(SDL_Scancode code, Uint16 mod) {
 	Camera *cam = NULL;
 	Map *map = NULL;
@@ -200,6 +207,13 @@ static void ProcessKeyDown(SDL_Scancode code, Uint16 mod) {
 				Engine_ToggleFullscreen();
 			break;
 		case SDL_SCANCODE_ESCAPE:
+			if(persistGrab) {
+				persistGrab = 0;
+				isMouseGrabbed = 1;
+				ToggleMouseGrab();
+				break;
+			}
+
 			Engine_Stop();
 			break;
 		default: break;
@@ -263,12 +277,6 @@ static int ProcessKeyboard(Camera *cam, float dm) {
 	return 0;
 }
 
-static inline void ToggleMouseGrab(void) {
-	isMouseGrabbed = !isMouseGrabbed;
-	SDL_SetRelativeMouseMode(isMouseGrabbed);
-	SDL_SetWindowGrab(Engine_GetWindow(), isMouseGrabbed);
-}
-
 static void ProcessMouseMotion(SDL_MouseMotionEvent *motion) {
 	Map *map = NULL;
 	Camera *cam = NULL;
@@ -328,8 +336,10 @@ void Input_Event(void *ptr) {
 		case SDL_KEYUP:
 			ProcessKeyUp(ev->key.keysym.scancode);
 			break;
-		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
+			persistGrab = ev->button.clicks > 1;
+			if(persistGrab) isMouseGrabbed = 0;
+		case SDL_MOUSEBUTTONDOWN:
 			if(ev->button.button == SDL_BUTTON_LEFT)
 				ToggleMouseGrab();
 			break;
