@@ -35,7 +35,7 @@
 
 #define CAMERA_MOVE_STEP 4.0f // Скорость передвижения камеры
 #define CAMERA_ANGLE_STEP 0.08f // Шаг вращения камеры
-#define CAMERA_HORIZON_STEP 23.0f // Шаг изменения угла наклона
+#define CAMERA_HORIZON_STEP 0.0383f // Шаг изменения угла наклона
 #define CAMERA_HEIGHT_DEFAULT 178.0f // Высота камеры по умолчанию
 #define CAMERA_HEIGHT_MAX 1000.0f // Максимальная высота камеры
 #define CAMERA_HEIGHT_MOD 0.02f // Влияние линии горизонта на вектор движения камеры

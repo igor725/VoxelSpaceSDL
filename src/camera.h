@@ -40,7 +40,7 @@ static inline void Camera_StrafeVert(Camera *cam, float spd) {
 }
 
 static inline void Camera_Pitch(Camera *cam, float spd) {
-	cam->horizon -= spd * CAMERA_HORIZON_STEP;
+	cam->horizon -= spd * cam->maxhorizon * CAMERA_HORIZON_STEP;
 	// Ограничиваем горизонт камеры размерностью окна
 	cam->horizon = max(-cam->maxhorizon, min(cam->horizon, cam->maxhorizon));
 }

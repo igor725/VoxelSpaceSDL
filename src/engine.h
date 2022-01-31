@@ -31,7 +31,7 @@ void Engine_End(void);
 void Engine_ToggleFullscreen(void);
 void *Engine_GetWindow(void);
 void Engine_GetObjects(Camera **cam, Map **map);
-int Engine_GetDeltaTime(void);
+float Engine_GetDeltaTime(void);
 void Engine_AddListener(Listeners type, void(*func)(void *));
 void Engine_CallListeners(Listeners type, void *arg);
 #endif

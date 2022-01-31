@@ -279,7 +279,7 @@ static void ProcessMouseMotion(SDL_MouseMotionEvent *motion) {
 }
 
 void Input_Update(void *ptr) {
-	float delta = (float)*(int *)ptr;
+	float delta = *(float *)ptr;
 	Map *map = NULL;
 	Camera *cam = NULL;
 	Engine_GetObjects(&cam, &map);

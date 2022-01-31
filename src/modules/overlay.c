@@ -8,7 +8,7 @@ SDL_Surface *tsurf = NULL;
 SDL_Color fgcolor = {0, 0, 0};
 SDL_Texture *text = NULL;
 SDL_Rect txtrect = {0, 0, 0, 0};
-int fpstimer = 0;
+float fpstimer = 0;
 
 void Overlay_Init(void *unused) {
 	(void)unused;
@@ -26,9 +26,9 @@ void Overlay_Init(void *unused) {
 void Overlay_Update(void *ptr) {
 	if(!font) return;
 	char buffer[20];
-	int delta = *(int *)ptr;
-	if((fpstimer += delta) > 500) {
-		if(SDL_snprintf(buffer, 20, "%02.2f (%d ms)", 1000.0f / delta, delta)) {
+	float delta = *(float *)ptr;
+	if((fpstimer += delta) > 500.0f) {
+		if(SDL_snprintf(buffer, 20, "%02.2f (%.2f ms)", 1000.0f / delta, delta)) {
 			tsurf = TTF_RenderText_Blended(font, buffer, fgcolor);
 			txtrect.w = tsurf->w, txtrect.h = tsurf->h;
 		}

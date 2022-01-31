@@ -11,8 +11,9 @@
 #include "map.h"
 
 struct sContext {
-	unsigned int lastTime, currTime;
-	int deltaTime, stopped;
+	Uint64 lastTime, currTime;
+	float deltaTime;
+	Uint32 stopped;
 	SDL_Window *wnd;
 	SDL_Renderer *render;
 	SDL_Texture *screen;
@@ -148,6 +149,12 @@ int Engine_Update(void) {
 		switch(ev.type) {
 			case SDL_QUIT:
 				return 0;
+			case SDL_WINDOWEVENT:
+				if(ev.window.event == SDL_WINDOWEVENT_RESIZED && SpawnScreen()) {
+					SDL_LogCritical(0, "Failed to create SDL texture: %s", SDL_GetError());
+					exit(1);
+				}
+
 			default:
 				Engine_CallListeners(LISTEN_SDL_EVENT, &ev);
 				break;
@@ -168,17 +175,18 @@ int Engine_Update(void) {
 
 	// Считаем время, затраченное на полный тик
 	ctx.lastTime = ctx.currTime;
-	ctx.currTime = SDL_GetTicks();
-	ctx.deltaTime = ctx.currTime - ctx.lastTime;
-	if(ctx.deltaTime > 1000) ctx.deltaTime = 0;
+	ctx.currTime = SDL_GetPerformanceCounter();
+	if(ctx.lastTime > 0) {
+		ctx.deltaTime = (float)((ctx.currTime - ctx.lastTime) * 1000) / SDL_GetPerformanceFrequency();
+		ctx.deltaTime = max(0.1f, min(ctx.deltaTime, 1000.0f));
+	}
 	return 1;
 }
 
 void Engine_ToggleFullscreen(void) {
-	SDL_SetWindowFullscreen(ctx.wnd,
-		SDL_GetWindowFlags(ctx.wnd) ^
-		SDL_WINDOW_FULLSCREEN_DESKTOP
-	);
+	Uint32 flags = SDL_GetWindowFlags(ctx.wnd);
+	flags ^= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	SDL_SetWindowFullscreen(ctx.wnd, flags);
 	if(SpawnScreen()) {
 		SDL_LogCritical(0, "Failed to create SDL texture: %s", SDL_GetError());
 		exit(1);
@@ -194,7 +202,7 @@ void Engine_GetObjects(Camera **cam, Map **map) {
 	if(map) *map = &ctx.map;
 }
 
-int Engine_GetDeltaTime(void) {
+float Engine_GetDeltaTime(void) {
 	return ctx.deltaTime;
 }
 
