@@ -41,7 +41,7 @@
 #define CAMERA_HEIGHT_MOD 0.02f // Влияние линии горизонта на вектор движения камеры
 #define CAMERA_DISTANCE_DEFAULT 750.0f // Дальность прорисовки по умолчанию
 #define CAMERA_DISTANCE_MIN 300.0f // Минимальная дальность прорисовки
-#define CAMERA_DISTANCE_MAX 10000.0f // Максимальная дальность прорисовки
+#define CAMERA_DISTANCE_MAX 30000.0f // Максимальная дальность прорисовки
 #define CAMERA_DISTANCE_STEP 150.0f // Шаг изменения дальности прорисовки
 #define CAMERA_POSITION_DEFAULT POINT_MAKE(512.0f, 800.0f) // Стартовая позиция камеры
 #define CAMERA_ZSTEP_DEFAULT 0.002f // Шаг по оси Z по умолчанию

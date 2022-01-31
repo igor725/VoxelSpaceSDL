@@ -202,6 +202,11 @@ static void ProcessKeyDown(SDL_Scancode code, Uint16 mod) {
 			isGravitationEnabled = !isGravitationEnabled;
 			velocity = 0.0f;
 			break;
+		case SDL_SCANCODE_O:
+			map->optdist = 3000.0f;
+			map->optimize ^= 1;
+			map->redraw = 1;
+			break;
 		case SDL_SCANCODE_RETURN:
 			if((mod & KMOD_ALT) != 0)
 				Engine_ToggleFullscreen();

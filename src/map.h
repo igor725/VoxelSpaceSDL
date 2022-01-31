@@ -10,6 +10,8 @@ typedef struct sMap {
 	int redraw; // Нужно ли перерисовывать карту
 	int width, height; // Размерность карты
 	int shift; // Побитовое смещение ширины карты
+	int optimize; // Оптимизировать отрисовку
+	float optdist; // Дистанция урезания качества
 	int *hiddeny; // Спрятанные линии
 	int *color; // Текстура карты
 	unsigned char *altitude; // Высоты карты

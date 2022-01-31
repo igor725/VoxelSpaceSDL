@@ -25,10 +25,12 @@ void Overlay_Init(void *unused) {
 
 void Overlay_Update(void *ptr) {
 	if(!font) return;
-	char buffer[20];
+	char buffer[32];
 	float delta = *(float *)ptr;
 	if((fpstimer += delta) > 500.0f) {
-		if(SDL_snprintf(buffer, 20, "%02.2f (%.2f ms)", 1000.0f / delta, delta)) {
+		Camera *cam = NULL;
+		Engine_GetObjects(&cam, NULL);
+		if(SDL_snprintf(buffer, 32, "%02.2f (%.2f ms), %.0f", 1000.0f / delta, delta, cam->distance)) {
 			tsurf = TTF_RenderText_Blended(font, buffer, fgcolor);
 			txtrect.w = tsurf->w, txtrect.h = tsurf->h;
 		}

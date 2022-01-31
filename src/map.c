@@ -140,6 +140,8 @@ static void DrawFromTo(Map *map, Camera *cam, int *pixels, int pitch, int start,
 			POINT_ADD(pLeft, pDelta);
 		}
 		deltaz += cam->zstep;
+		if(map->optimize && z > map->optdist)
+			deltaz += cam->zstep * (z / 2.0f);
 	}
 }
 
