@@ -1,7 +1,6 @@
 #include "engine.h"
 #include "argparse.h"
-#include <SDL_hints.h>
-#include <SDL_error.h>
+#include <SDL_log.h>
 
 #ifdef _WIN32
 #include <direct.h>

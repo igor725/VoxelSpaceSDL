@@ -15,8 +15,6 @@
 #endif
 #include "defines.h"
 #include "engine.h"
-#define VSERROR_STRINGS
-#include "error.h"
 #include "map.h"
 #include "input.h"
 #include "argparse.h"

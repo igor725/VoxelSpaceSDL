@@ -158,6 +158,8 @@ void Map_Draw(Map *map, Camera *cam) {
 	map->redraw = 0;
 }
 #else
+#include <SDL_cpuinfo.h>
+
 static int RenderThread(void *ptr) {
 	struct sMapRenderCtx *ctx = (struct sMapRenderCtx *)ptr;
 	struct SMapRenderGlobCtx *gctx = ctx->global;
