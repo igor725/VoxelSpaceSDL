@@ -12,6 +12,9 @@ typedef struct sPoint {
 typedef struct sEngineSettings {
 	int vsync, width, height;
 	char *diffusemap, *heightmap;
+#ifdef USE_THREADED_RENDER
+	int numthreads;
+#endif
 } EngineSettings;
 
 typedef enum eListeners {

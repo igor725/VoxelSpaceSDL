@@ -110,6 +110,14 @@ int Engine_Start(EngineSettings *es) {
 			SDL_LogError(0, "Failed to retrieve SDL renderer info: %s", SDL_GetError());
 	}
 
+#ifdef USE_THREADED_RENDER
+	/*
+		Устанавливаем количество потоков, используемых для рисования картинки.
+		TODO: Сделать установку этого значения не настолько через жопу.
+	*/
+	ctx.map.rctxcnt = es->numthreads;
+#endif
+
 	/*
 		Создаём текстуру, которая будет использоваться
 		для хранения последнего отрисованного кадра.

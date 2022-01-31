@@ -19,20 +19,19 @@ typedef struct sMap {
 
 #ifdef USE_THREADED_RENDER
 	struct SMapRenderGlobCtx {
-		SDL_cond *unlockcond;
-		struct sMap *self;
-		Camera *cam;
-		int endwork;
-		int fullwidth;
-		int *pixels;
-		int pitch;
-	} rgctx;
-	int rctxcnt;
+		SDL_cond *unlockcond; // Условие разблокировки потоков
+		struct sMap *self; // Указатель на карту
+		Camera *cam; // Указатель на камеру
+		int endwork; // Если равно 1, то все разблокированные потоки завершатся
+		int *pixels; // Указатель на массив пикселей экрана
+		int pitch; // Длина одной строки массива пикселей
+	} rgctx; // Глобальный контекст
+	int rctxcnt; // Количество потоков рендеринга
 	struct sMapRenderCtx {
-		SDL_sem *semaphore;
-		struct SMapRenderGlobCtx *global;
-		SDL_Thread *self;
-		int start, end;
+		SDL_sem *semaphore; // Семафор для ожидания сигнала от потока
+		struct SMapRenderGlobCtx *global; // Глобальный контекст, одинаков для всех потоков
+		SDL_Thread *self; // Указатель на объект потока
+		int start, end; // Начало и конец куска, который отрисовывает поток
 	} *rctxs;
 #endif
 } Map;

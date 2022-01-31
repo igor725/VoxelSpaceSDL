@@ -54,6 +54,10 @@ int CommandArgs_Parse(int argc, char *argv[], EngineSettings *es) {
 		} else if(TestArg(argstr, "winheight", "wh")) {
 			es->height = SDL_atoi(argv[cursor++]);
 			if(!es->height) return ShowHelp();
+#ifdef USE_THREADED_RENDER
+		} else if(TestArg(argstr, "numthreads", "nt")) {
+			es->numthreads = SDL_atoi(argv[cursor++]);
+#endif
 		} else return ShowHelp();
 	}
 

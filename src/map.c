@@ -90,13 +90,13 @@ int Map_Open(Map *map, const char *diffuse, const char *height) {
 	return ERROR_OK;
 }
 
-static inline void PrepareToDraw(SDL_Texture *screen, int **pixels, int *pitch, int *width, int *height) {
+static inline void PrepareToDraw(SDL_Texture *screen, int **pixels, int *pitch, int *height) {
 	SDL_LockTexture(screen, NULL, (void **)pixels, pitch);
-	SDL_QueryTexture(screen, NULL, NULL, width, height);
+	SDL_QueryTexture(screen, NULL, NULL, NULL, height);
 	*pitch /= sizeof(int);
 
 	// Заливаем экран одним цветом
-	for(int i = 0; i < (*width) * (*height); i++)
+	for(int i = 0; i < (*pitch) * (*height); i++)
 		(*pixels)[i] = 0x9090E0FF;
 }
 
@@ -112,7 +112,7 @@ static inline void DrawVerticalLine(int *pixels, int pitch, int x, int top, int 
 	}
 }
 
-static void DrawFromTo(Map *map, Camera *cam, int *pixels, int pitch, int start, int end, int fullwidth) {
+static void DrawFromTo(Map *map, Camera *cam, int *pixels, int pitch, int start, int end) {
 	if(!map->ready) return;
 	float sinang = SDL_sinf(cam->angle),
 	cosang = SDL_cosf(cam->angle);
@@ -122,8 +122,8 @@ static void DrawFromTo(Map *map, Camera *cam, int *pixels, int pitch, int start,
 		Point pLeft = {-cosang * z - sinang * z, sinang * z - cosang * z},
 		pRight = {cosang * z - sinang * z, -sinang * z - cosang * z},
 		pDelta = {
-			(pRight.x - pLeft.x) / (float)fullwidth,
-			(pRight.y - pLeft.y) / (float)fullwidth
+			(pRight.x - pLeft.x) / (float)pitch,
+			(pRight.y - pLeft.y) / (float)pitch
 		};
 		pLeft.x += pDelta.x * start;
 		pLeft.y += pDelta.y * start;
@@ -148,11 +148,11 @@ static void DrawFromTo(Map *map, Camera *cam, int *pixels, int pitch, int start,
 #ifndef USE_THREADED_RENDER
 void Map_Draw(Map *map, Camera *cam) {
 	if(!map->redraw) return;
-	int *pixels = NULL, pitch = 0, width = 0, height = 0;
-	PrepareToDraw((SDL_Texture *)map->screen, &pixels, &pitch, &width, &height);
-	for(int i = 0; i < width; i++)
+	int *pixels = NULL, pitch = 0, height = 0;
+	PrepareToDraw((SDL_Texture *)map->screen, &pixels, &pitch, &height);
+	for(int i = 0; i < pitch; i++)
 		map->hiddeny[i] = height;
-	DrawFromTo(map, cam, pixels, pitch, 0, width, width);
+	DrawFromTo(map, cam, pixels, pitch, 0, pitch);
 
 	SDL_UnlockTexture((SDL_Texture *)map->screen);
 	map->redraw = 0;
@@ -170,8 +170,7 @@ static int RenderThread(void *ptr) {
 		DrawFromTo(
 			gctx->self, gctx->cam,
 			gctx->pixels, gctx->pitch,
-			ctx->start, ctx->end,
-			gctx->fullwidth
+			ctx->start, ctx->end
 		);
 		SDL_SemPost(ctx->semaphore);
 		SDL_UnlockMutex(mtx);
@@ -184,14 +183,13 @@ static int RenderThread(void *ptr) {
 
 void Map_Draw(Map *map, Camera *cam) {
 	if(!map->redraw) return;
-	int *pixels = NULL, pitch = 0, width = 0, height = 0, failed = 0;
-	PrepareToDraw((SDL_Texture *)map->screen, &pixels, &pitch, &width, &height);
+	int *pixels = NULL, pitch = 0, height = 0, failed = 0;
+	PrepareToDraw((SDL_Texture *)map->screen, &pixels, &pitch, &height);
 	if(map->ready) {
 		map->rgctx.cam = cam;
-		map->rgctx.fullwidth = width;
 		map->rgctx.pixels = pixels;
 		map->rgctx.pitch = pitch;
-		for(int i = 0; i < width; i++)
+		for(int i = 0; i < pitch; i++)
 			map->hiddeny[i] = height;
 		SDL_CondBroadcast(map->rgctx.unlockcond);
 		for(int i = 0; i < map->rctxcnt && !failed; i++)
@@ -236,7 +234,8 @@ void Map_SetScreen(Map *map, void *screen) {
 		map->rgctx.self = map;
 		map->rgctx.endwork = 0;
 		map->rgctx.unlockcond = SDL_CreateCond();
-		map->rctxcnt = max(SDL_GetCPUCount() - 1, 1);
+		// Если это значение не было установлено извне, то ставим его самостоятельно
+		if(!map->rctxcnt) map->rctxcnt = max(SDL_GetCPUCount() - 1, 1);
 		map->rctxs = SDL_calloc(map->rctxcnt, sizeof(struct sMapRenderCtx));
 
 		int perthwidth = (width / map->rctxcnt) + 1;
