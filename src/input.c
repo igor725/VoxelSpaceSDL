@@ -286,7 +286,7 @@ static void ProcessMouseMotion(SDL_MouseMotionEvent *motion) {
 	Map *map = NULL;
 	Camera *cam = NULL;
 	Engine_GetObjects(&cam, &map);
-	cam->angle -= (float)motion->xrel * (INPUT_MOUSE_SENS / (float)Engine_GetDeltaTime());
+	cam->angle -= (float)motion->xrel * INPUT_MOUSE_SENS;
 	cam->horizon -= (float)motion->yrel;
 	map->redraw = 1;
 }
