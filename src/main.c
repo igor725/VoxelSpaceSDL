@@ -32,6 +32,17 @@ static void RemoveController(void *ptr) {
 }
 
 int main(int argc, char *argv[]) {
+	EngineSettings es = {
+		.vsync = 1,
+		.width = GRAPHICS_WIDTH,
+		.height = GRAPHICS_HEIGHT,
+		.diffusemap = "maps/C1W.bmp",
+		.heightmap = "maps/D1.bmp",
+	};
+
+	if(CommandArgs_Parse(argc, argv, &es))
+		return 999;
+
 	Engine_AddListener(LISTEN_ENGINE_UPDATE, Input_Update);
 	Engine_AddListener(LISTEN_SDL_EVENT, Input_Event);
 #ifndef EMSCRIPTEN
@@ -46,19 +57,6 @@ int main(int argc, char *argv[]) {
 	Engine_AddListener(LISTEN_CONTROLLER_ADD, AddController);
 	Engine_AddListener(LISTEN_CONTROLLER_FAIL, FailController);
 	Engine_AddListener(LISTEN_CONTROLLER_DEL, RemoveController);
-
-	EngineSettings es = {
-		.vsync = 1,
-		.width = GRAPHICS_WIDTH,
-		.height = GRAPHICS_HEIGHT,
-		.diffusemap = "maps/C1W.bmp",
-		.heightmap = "maps/D1.bmp",
-	};
-
-	if(CommandArgs_Parse(argc, argv, &es)) {
-		Engine_End();
-		return 999;
-	}
 
 	int ret;
 	if((ret = Engine_Start(&es)) != 0) {
