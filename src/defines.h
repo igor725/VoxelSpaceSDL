@@ -20,7 +20,7 @@
 #define GRAPHICS_WIDTH 800 // Ширина SDL окна
 #define GRAPHICS_HEIGHT ((int)(GRAPHICS_WIDTH * 0.75)) // Высота SDL окна
 
-#define INPUT_MOUSE_SENS 0.0032f // Чувствительность мыши при управлении камерой
+#define INPUT_MOUSE_SENS 0.0022f // Чувствительность мыши при управлении камерой
 #define INPUT_TOUCH_SENS 80.0f // Чувствительность тач панели геймпада
 #define INPUT_MAX_PADS 8 // Максимально возможное количество обрабатываемых геймпадов
 #define INPUT_MAX_KEYBINDS 4 // Наборы клавиш, обрабатываемые движком

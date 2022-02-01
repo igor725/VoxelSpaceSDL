@@ -114,9 +114,10 @@ static inline void DrawVerticalLine(int *pixels, int pitch, int x, int top, int 
 
 static void DrawFromTo(Map *map, Camera *cam, int *pixels, int pitch, int start, int end) {
 	if(!map->ready) return;
-	float sinang = SDL_sinf(cam->angle),
-	cosang = SDL_cosf(cam->angle);
-	float deltaz = 1.0f;
+	float scale = cam->maxhorizon / 2.5f,
+	sinang = SDL_sinf(cam->angle),
+	cosang = SDL_cosf(cam->angle),
+	deltaz = 1.0f;
 
 	for(float z = 1.0f; z < cam->distance; z += deltaz) {
 		Point pLeft = {-cosang * z - sinang * z, sinang * z - cosang * z},
@@ -130,7 +131,7 @@ static void DrawFromTo(Map *map, Camera *cam, int *pixels, int pitch, int start,
 		POINT_ADD(pLeft, cam->position);
 		for(int i = start; i < end; i++) {
 			int offset = (((int)pLeft.y & (map->width - 1)) << map->shift) + ((int)pLeft.x & (map->height - 1));
-			int top = (int)((cam->height - (float)map->altitude[offset]) / z * 240.0f + cam->horizon);
+			int top = (int)((cam->height - (float)map->altitude[offset]) / z * scale + cam->horizon);
 			DrawVerticalLine(pixels, pitch, i, top, map->hiddeny[i], map->color[offset]);
 			/*
 				Слегка ускоряем рендер путём скрытия
