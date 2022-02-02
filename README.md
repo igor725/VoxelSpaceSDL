@@ -4,7 +4,7 @@
 
 Comanche's Voxel Space rendering algorithm written in C using SDL. You can try it [here](https://igvx.ru/vs_sdl/) (browser demo).
 
-![vs_2021-08-30_12-15-23.png](https://user-images.githubusercontent.com/40758030/131331416-0491eb7e-dcde-4857-a524-c87d94ae4a76.png)
+![Code_2022-02-02_14-48-09](https://user-images.githubusercontent.com/40758030/152148072-e869ee1a-53e6-4c21-9900-de16a2f9fc67.png)
 
 
 ## Bindings
@@ -44,15 +44,30 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 
 ## Building
 
+### Arguments supported by build scripts
+
+* ``dbg`` - Build with debug symbols;
+* ``wall`` - Enable all compiler warnings;
+* ``winf`` - Increase warning level;
+* ``woff`` - Disable all compiler warnings;
+* ``threaded`` - Build with multithreaded renderer;
+* ``sdlimage`` - Build with png/jpg/... images support;
+* ``overlay`` - Build with onscreen information module;
+* ``web`` - Build for browsers using [emscripten](https://emscripten.org/);
+* ``run`` - Run compiled app if build successful.
+
+### Build scripts usage
+
 * On Windows you need to run the ``build.bat`` batch script in Visual Studio Developer Environment. Or... just open Visual Studio Code and press F5 button. If you need png image support, run ``build.bat sdlimage``.
 * On Linux you need to run the ``build.sh`` bash script. If you need png image support, run ``build.sh sdlimage``;
-* Bot scripts can build VoxelSpace for browsers using [emscripten](https://emscripten.org/): ``build.bat web run``.
+* Almost all build agrguments can be combined.
 
 ## Notes
 
 * You can change map by dropping two images (height map and diffuse map) on the Voxel Space window;
 * The first letter in file name tells to the VoxelSpace how to use dropped file. ``D`` - use as a height map, and ``C`` - use as a diffuse map;
-* Also you can change default map by passing two commandline arguments to VoxelSpace: ``vs.exe path/to/diffuse.png path/to/height.png``.
+* Also you can change default map by passing commandline arguments to VoxelSpace: ``vs.exe -dm "path/to/diffuse.png"  -hm "path/to/height.png"`` or ``vs.exe /diffuse "path/to/image.png" /height "path/to/image.png"``;
+* So far there are no VoxelSpace commandline arguments list, see ``src/argparse.c`` for more information.
 
 ## Thanks
 
