@@ -1,7 +1,10 @@
 #include <SDL_gamecontroller.h>
 #include <SDL_version.h>
-#include "defines.h"
-#include "engine.h"
+#include <SDL_log.h>
+
+#include "../defines.h"
+#include "../engine.h"
+#include "../camera.h"
 
 extern int isGravitationEnabled, isOnTheGround;
 extern float velocity;

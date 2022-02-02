@@ -1,7 +1,9 @@
 #include <SDL_scancode.h>
-#include <SDL_events.h>
-#include "defines.h"
-#include "engine.h"
+#include <SDL_keycode.h>
+
+#include "../defines.h"
+#include "../engine.h"
+#include "../camera.h"
 
 extern int isGravitationEnabled, isOnTheGround;
 extern float velocity;
@@ -136,11 +138,11 @@ static int ProcessKeyboard(Camera *cam, float dm) {
 	return 0;
 }
 
-static void ProcessMouseMotion(SDL_MouseMotionEvent *motion) {
+static void ProcessMouseMotion(Sint32 rx, Sint32 ry) {
 	Map *map = NULL;
 	Camera *cam = NULL;
 	Engine_GetObjects(&cam, &map);
-	cam->angle -= (float)motion->xrel * INPUT_MOUSE_SENS;
-	cam->horizon -= (float)motion->yrel * cam->maxhorizon * INPUT_MOUSE_SENS;
+	cam->angle -= (float)rx * INPUT_MOUSE_SENS;
+	cam->horizon -= (float)ry * cam->maxhorizon * INPUT_MOUSE_SENS;
 	map->redraw = 1;
 }

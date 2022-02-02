@@ -1,7 +1,5 @@
 #include <SDL_events.h>
 #include <SDL_stdinc.h>
-
-#include <SDL_log.h>
 #include "defines.h"
 #include "engine.h"
 #include "camera.h"
@@ -73,7 +71,7 @@ void Input_Event(void *ptr) {
 			break;
 		case SDL_MOUSEMOTION:
 			if(isMouseGrabbed)
-				ProcessMouseMotion(&ev->motion);
+				ProcessMouseMotion(ev->motion.xrel, ev->motion.yrel);
 			break;
 	}
 }
