@@ -92,7 +92,6 @@ void Overlay_Init(void *unused) {
 
 void Overlay_Update(void *ptr) {
 	if(!font) return;
-	char buffer[32];
 	struct OverlayContext ctx = {
 		.delta = *(float *)ptr
 	};
