@@ -20,6 +20,7 @@ Comanche's Voxel Space rendering algorithm written in C using SDL. You can try i
 * E/Q - Adjust camera height (Jump if gravtitation enabled)
 * R/F - Adjust camera pitch
 * J/K - Adjust details level
+* LShift - Increase camera movement speed
 * C - Reset camera pitch
 * Space - Increase render distance
 * Shift + Space - Decrease render distance

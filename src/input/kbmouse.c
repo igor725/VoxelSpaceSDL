@@ -9,7 +9,7 @@ extern int isGravitationEnabled, isOnTheGround;
 extern float velocity;
 
 static SDL_Scancode input[INPUT_MAX_KEYBINDS] = {0};
-static int isMouseGrabbed = 0, persistGrab = 0;
+static int isMouseGrabbed = 0, persistGrab = 0, isSprintActive = 0;
 
 static inline void ToggleMouseGrab(void) {
 	isMouseGrabbed = !isMouseGrabbed || persistGrab;
@@ -44,6 +44,9 @@ static void ProcessKeyDown(SDL_Scancode code, Uint16 mod) {
 				Camera_ResetDistance(cam);
 			else
 				Camera_AdjustDistance(cam, (mod & KMOD_SHIFT ? -1.0f : 1.0f) * CAMERA_DISTANCE_STEP);
+			break;
+		case SDL_SCANCODE_LSHIFT:
+			isSprintActive = 1;
 			break;
 		case SDL_SCANCODE_C:
 			Camera_ResetPitch(cam);
@@ -99,6 +102,9 @@ static void ProcessKeyUp(SDL_Scancode code) {
 		case SDL_SCANCODE_F:
 			if(input[3] == code) input[3] = 0;
 			break;
+		case SDL_SCANCODE_LSHIFT:
+			isSprintActive = 0;
+			break;
 		default: break;
 	}
 }
@@ -124,7 +130,8 @@ static int ProcessKeyboard(Camera *cam, float dm) {
 			Camera_Rotate(cam, direction);
 	}
 	if(input[0]) {
-		float speedMod = isGravitationEnabled ? 2.5 : 1.0;
+		float speedMod = isGravitationEnabled ? 2.5f : 1.0f;
+		if (isSprintActive) speedMod *= 0.3f;
 		Camera_MoveForward(cam, (input[0] == SDL_SCANCODE_W ? -dm : dm) / speedMod, isGravitationEnabled);
 	}
 
