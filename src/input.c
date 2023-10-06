@@ -6,8 +6,8 @@
 #include "map.h"
 #include "input.h"
 
-static int isGravitationEnabled = 0, isOnTheGround = 0;
-static float velocity = 0.0f;
+int isGravitationEnabled = 0, isOnTheGround = 0;
+float velocity = 0.0f;
 
 #include "input/kbmouse.c"
 #include "input/gamepad.c"
